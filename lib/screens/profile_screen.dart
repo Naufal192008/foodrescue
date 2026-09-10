@@ -1,0 +1,326 @@
+import 'package:flutter/material.dart';
+
+import '../utils/app_colors.dart';
+
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _notificationsEnabled = true;
+
+  Future<void> _editProfile() async {
+    final nameController = TextEditingController(text: 'Budi Santoso');
+    final emailController =
+        TextEditingController(text: 'budi.santoso@email.com');
+    final formKey = GlobalKey<FormState>();
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          4,
+          20,
+          MediaQuery.of(sheetContext).viewInsets.bottom + 20,
+        ),
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Edit Profil',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+              const SizedBox(height: 18),
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nama lengkap',
+                  prefixIcon: Icon(Icons.person_outline_rounded),
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'Nama wajib diisi'
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) => value == null || !value.contains('@')
+                    ? 'Masukkan email yang valid'
+                    : null,
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      Navigator.pop(sheetContext);
+                      _showMessage('Profil berhasil diperbarui');
+                    }
+                  },
+                  child: const Text('Simpan Perubahan'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    nameController.dispose();
+    emailController.dispose();
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _showLogoutDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Keluar dari akun?'),
+        content: const Text(
+            'Kamu dapat masuk kembali kapan saja dengan akun FoodRescue.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              _showMessage('Demo logout berhasil');
+            },
+            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+            child: const Text('Keluar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title:
+            const Text('Profil', style: TextStyle(fontWeight: FontWeight.w800)),
+        actions: [
+          IconButton(
+            tooltip: 'Edit profil',
+            onPressed: _editProfile,
+            icon: const Icon(Icons.edit_outlined),
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AppColors.primary, AppColors.primaryDark],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  radius: 34,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person_rounded,
+                      color: AppColors.primary, size: 40),
+                ),
+                const SizedBox(width: 14),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Budi Santoso',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800)),
+                      SizedBox(height: 4),
+                      Text('budi.santoso@email.com',
+                          style: TextStyle(color: Colors.white70)),
+                      SizedBox(height: 10),
+                      Row(children: [
+                        Icon(Icons.workspace_premium_rounded,
+                            color: Colors.amber, size: 18),
+                        SizedBox(width: 5),
+                        Text('Level 4 Food Saver',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700))
+                      ]),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: const [
+              _StatCard(value: '24', label: 'Box diselamatkan'),
+              SizedBox(width: 10),
+              _StatCard(value: '285rb', label: 'Total hemat'),
+              SizedBox(width: 10),
+              _StatCard(value: '5.2kg', label: 'CO2 dicegah'),
+            ],
+          ),
+          const SizedBox(height: 26),
+          Text('Akun Saya',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 8),
+          _ProfileTile(
+              icon: Icons.person_outline_rounded,
+              title: 'Data Pribadi',
+              subtitle: 'Nama, email, dan nomor telepon',
+              onTap: _editProfile),
+          _ProfileTile(
+              icon: Icons.location_on_outlined,
+              title: 'Alamat Pengambilan',
+              subtitle: 'Kelola alamat favorit',
+              onTap: () =>
+                  _showMessage('Fitur alamat siap dihubungkan ke API')),
+          _ProfileTile(
+              icon: Icons.account_balance_wallet_outlined,
+              title: 'Metode Pembayaran',
+              subtitle: 'GoPay, OVO, ShopeePay, QRIS',
+              onTap: () => _showMessage('Pengaturan pembayaran dibuka')),
+          const SizedBox(height: 18),
+          Text('Preferensi',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 8),
+          Card(
+            child: SwitchListTile.adaptive(
+              value: _notificationsEnabled,
+              onChanged: (value) =>
+                  setState(() => _notificationsEnabled = value),
+              secondary: const Icon(Icons.notifications_none_rounded,
+                  color: AppColors.primary),
+              title: const Text('Notifikasi'),
+              subtitle: Text(_notificationsEnabled
+                  ? 'Notifikasi aktif'
+                  : 'Notifikasi dinonaktifkan'),
+              activeThumbColor: AppColors.primary,
+            ),
+          ),
+          _ProfileTile(
+              icon: Icons.help_outline_rounded,
+              title: 'Pusat Bantuan',
+              subtitle: 'FAQ dan bantuan pengambilan',
+              onTap: () => _showMessage('Pusat bantuan dibuka')),
+          _ProfileTile(
+              icon: Icons.info_outline_rounded,
+              title: 'Tentang FoodRescue',
+              subtitle: 'Versi aplikasi 1.0.0',
+              onTap: () =>
+                  _showMessage('FoodRescue membantu mengurangi food waste')),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: _showLogoutDialog,
+            icon: const Icon(Icons.logout_rounded),
+            label: const Text('Keluar dari Akun'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.danger,
+              side: const BorderSide(color: AppColors.danger),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  const _StatCard({required this.value, required this.label});
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          children: [
+            Text(value,
+                style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800)),
+            const SizedBox(height: 4),
+            Text(label,
+                textAlign: TextAlign.center,
+                style:
+                    const TextStyle(color: AppColors.mutedText, fontSize: 10)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileTile extends StatelessWidget {
+  const _ProfileTile(
+      {required this.icon,
+      required this.title,
+      required this.subtitle,
+      required this.onTap});
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        onTap: onTap,
+        leading: Icon(icon, color: AppColors.primary),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right_rounded),
+      ),
+    );
+  }
+}
