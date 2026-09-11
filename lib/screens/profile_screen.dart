@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
+import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({
+    super.key,
+    required this.username,
+    required this.name,
+    required this.email,
+  });
+
+  final String username;
+  final String name;
+  final String email;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -11,11 +21,12 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _notificationsEnabled = true;
+  late String _name = widget.name;
+  late String _email = widget.email;
 
   Future<void> _editProfile() async {
-    final nameController = TextEditingController(text: 'Budi Santoso');
-    final emailController =
-        TextEditingController(text: 'budi.santoso@email.com');
+    final nameController = TextEditingController(text: _name);
+    final emailController = TextEditingController(text: _email);
     final formKey = GlobalKey<FormState>();
 
     await showModalBottomSheet<void>(
@@ -72,6 +83,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: FilledButton(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
+                      setState(() {
+                        _name = nameController.text.trim();
+                        _email = emailController.text.trim();
+                      });
+                      DemoAccounts.updateProfile(
+                        username: widget.username,
+                        name: _name,
+                        email: _email,
+                      );
                       Navigator.pop(sheetContext);
                       _showMessage('Profil berhasil diperbarui');
                     }
@@ -108,8 +128,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           FilledButton(
             onPressed: () {
-              Navigator.pop(dialogContext);
-              _showMessage('Demo logout berhasil');
+              Navigator.of(dialogContext).pushAndRemoveUntil(
+                MaterialPageRoute<void>(
+                  builder: (_) => const LoginScreen(),
+                ),
+                (route) => false,
+              );
             },
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
             child: const Text('Keluar'),
@@ -155,18 +179,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: AppColors.primary, size: 40),
                 ),
                 const SizedBox(width: 14),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Budi Santoso',
+                      Text(_name,
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.w800)),
                       SizedBox(height: 4),
-                      Text('budi.santoso@email.com',
-                          style: TextStyle(color: Colors.white70)),
+                      Text(_email, style: TextStyle(color: Colors.white70)),
                       SizedBox(height: 10),
                       Row(children: [
                         Icon(Icons.workspace_premium_rounded,

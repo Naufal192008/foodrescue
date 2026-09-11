@@ -6,6 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 
 import 'package:foodrescue/main.dart';
 
@@ -13,6 +14,11 @@ void main() {
   testWidgets('FoodRescue opens the explore screen',
       (WidgetTester tester) async {
     await tester.pumpWidget(const FoodRescueApp());
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'user');
+    await tester.enterText(find.byType(TextFormField).at(1), 'user123');
+    await tester.tap(find.text('Masuk'));
     await tester.pumpAndSettle();
 
     expect(find.text('Jelajah'), findsAtLeastNWidgets(1));

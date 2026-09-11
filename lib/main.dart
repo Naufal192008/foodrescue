@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/cart_provider.dart';
-import 'screens/main_navigation.dart';
+import 'screens/login_screen.dart';
 import 'utils/app_colors.dart';
 
 void main() {
@@ -45,7 +45,7 @@ class FoodRescueApp extends StatelessWidget {
             filled: true,
           ),
         ),
-        home: const MainNavigation(),
+        home: const LoginScreen(),
       ),
     );
   }

@@ -10,7 +10,16 @@ import 'store_screen.dart';
 import 'ticket_screen.dart';
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+  const MainNavigation({
+    super.key,
+    required this.username,
+    required this.name,
+    required this.email,
+  });
+
+  final String username;
+  final String name;
+  final String email;
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
@@ -19,13 +28,23 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
-    ExploreScreen(),
-    TicketPlaceholderScreen(),
-    HomeScreen(),
-    StoreScreen(),
-    ProfileScreen(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const ExploreScreen(),
+      const TicketPlaceholderScreen(),
+      const HomeScreen(),
+      const StoreScreen(),
+      ProfileScreen(
+        username: widget.username,
+        name: widget.name,
+        email: widget.email,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
