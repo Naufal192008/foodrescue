@@ -13,6 +13,7 @@ class Product {
     required this.rating,
     required this.description,
     required this.itemsInBag,
+    this.likes = 0,
   });
 
   final String id;
@@ -28,6 +29,24 @@ class Product {
   final double rating;
   final String description;
   final List<String> itemsInBag;
+  final int likes;
 
   int get savings => originalPrice - discountPrice;
+
+  Product copyWith({int? likes}) => Product(
+        id: id,
+        name: name,
+        storeName: storeName,
+        distance: distance,
+        originalPrice: originalPrice,
+        discountPrice: discountPrice,
+        imageUrl: imageUrl,
+        stock: stock,
+        pickupStart: pickupStart,
+        pickupEnd: pickupEnd,
+        rating: rating,
+        description: description,
+        itemsInBag: itemsInBag,
+        likes: likes ?? this.likes,
+      );
 }

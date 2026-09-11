@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../models/product_model.dart';
+import '../providers/like_provider.dart';
 import '../utils/app_colors.dart';
 
 class ProductCard extends StatelessWidget {
@@ -69,7 +71,64 @@ class ProductCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.favorite_border, size: 20),
+                        Consumer<LikeProvider>(
+                          builder: (context, likeProvider, _) {
+                            final liked = likeProvider.isLiked(product.id);
+                            final count = likeProvider.likeCount(product.id);
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () {
+                                final nowLiked =
+                                    likeProvider.toggleLike(product.id);
+                                ScaffoldMessenger.of(context)
+                                  ..hideCurrentSnackBar()
+                                  ..showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        nowLiked
+                                            ? '❤️ Ditambahkan ke favorit'
+                                            : '💔 Dihapus dari favorit',
+                                      ),
+                                      duration: const Duration(seconds: 1),
+                                      backgroundColor: nowLiked
+                                          ? AppColors.danger
+                                          : AppColors.mutedText,
+                                    ),
+                                  );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 2),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      liked
+                                          ? Icons.favorite_rounded
+                                          : Icons.favorite_border_rounded,
+                                      size: 20,
+                                      color: liked
+                                          ? AppColors.danger
+                                          : AppColors.mutedText,
+                                    ),
+                                    if (count > 0) ...[
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        '$count',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: liked
+                                              ? AppColors.danger
+                                              : AppColors.mutedText,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),

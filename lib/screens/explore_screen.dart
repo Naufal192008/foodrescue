@@ -33,7 +33,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
         pickupStart: DateTime.now().add(const Duration(minutes: 45)),
         pickupEnd: DateTime.now().add(const Duration(hours: 2)),
         rating: 4.8,
-        description: 'Kombinasi roti dan pastry pilihan yang masih sangat lezat untuk dinikmati hari ini.',
+        description:
+            'Kombinasi roti dan pastry pilihan yang masih sangat lezat untuk dinikmati hari ini.',
         itemsInBag: ['Croissant butter', 'Roti cokelat', 'Donat gula']),
     Product(
         id: 'box-002',
@@ -48,7 +49,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
         pickupStart: DateTime.now().add(const Duration(hours: 1)),
         pickupEnd: DateTime.now().add(const Duration(hours: 3)),
         rating: 4.6,
-        description: 'Menu rumahan hangat yang dibuat segar dan siap menjadi makan malam praktis.',
+        description:
+            'Menu rumahan hangat yang dibuat segar dan siap menjadi makan malam praktis.',
         itemsInBag: ['Nasi putih', 'Ayam bumbu', 'Tumis sayur']),
     Product(
         id: 'box-003',
