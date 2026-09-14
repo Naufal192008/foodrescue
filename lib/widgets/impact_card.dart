@@ -28,16 +28,21 @@ class ImpactCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
               const Icon(Icons.eco_rounded, color: Colors.white, size: 24),
               const SizedBox(width: 8),
-              Text(
-                'Dampak Lingkungan Pribadimu',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
+              Flexible(
+                child: Text(
+                  'Dampak Lingkungan Pribadimu',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
               ),
             ],
@@ -49,17 +54,17 @@ class ImpactCard extends StatelessWidget {
               _ImpactValue(
                 icon: Icons.restaurant_rounded,
                 value: '$portions',
-                label: 'Porsi terselamatkan',
+                label: 'Porsi',
               ),
               _ImpactValue(
                 icon: Icons.savings_rounded,
                 value: '${moneySaved}rb',
-                label: 'Uang hemat',
+                label: 'Hemat',
               ),
               _ImpactValue(
                 icon: Icons.cloud_done_rounded,
                 value: '${co2Saved}kg',
-                label: 'CO2e dicegah',
+                label: 'CO2e',
               ),
             ],
           ),
@@ -85,22 +90,33 @@ class _ImpactValue extends StatelessWidget {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: Colors.white70, size: 20),
           const SizedBox(height: 8),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
+          SizedBox(
+            height: 26,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
             ),
           ),
           const SizedBox(height: 2),
           Text(
             label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: Colors.white70),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Colors.white70),
           ),
         ],
       ),

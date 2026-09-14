@@ -160,6 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
+          // ===== HEADER PROFIL =====
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -182,24 +183,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(_name,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800)),
-                      SizedBox(height: 4),
-                      Text(_email, style: TextStyle(color: Colors.white70)),
-                      SizedBox(height: 10),
-                      Row(children: [
-                        Icon(Icons.workspace_premium_rounded,
-                            color: Colors.amber, size: 18),
-                        SizedBox(width: 5),
-                        Text('Level 4 Food Saver',
-                            style: TextStyle(
+                      // PERBAIKAN: Nama pakai ellipsis
+                      Text(
+                        _name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      // PERBAIKAN: Email pakai ellipsis
+                      Text(
+                        _email,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: const [
+                          Icon(Icons.workspace_premium_rounded,
+                              color: Colors.amber, size: 18),
+                          SizedBox(width: 5),
+                          Flexible(
+                            child: Text(
+                              'Level 4 Food Saver',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w700))
-                      ]),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -207,21 +230,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          Row(
-            children: const [
-              _StatCard(value: '24', label: 'Box diselamatkan'),
+
+          // ===== ROW 3 STAT CARD (YANG SERING OVERFLOW) =====
+          const Row(
+            children: [
+              _StatCard(value: '24', label: 'Box\nselamat'),
               SizedBox(width: 10),
-              _StatCard(value: '285rb', label: 'Total hemat'),
+              _StatCard(value: '285rb', label: 'Total\nhemat'),
               SizedBox(width: 10),
-              _StatCard(value: '5.2kg', label: 'CO2 dicegah'),
+              _StatCard(value: '5.2kg', label: 'CO2\ndicegah'),
             ],
           ),
           const SizedBox(height: 26),
-          Text('Akun Saya',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w800)),
+
+          Text(
+            'Akun Saya',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w800),
+          ),
           const SizedBox(height: 8),
           _ProfileTile(
               icon: Icons.person_outline_rounded,
@@ -240,11 +270,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               subtitle: 'GoPay, OVO, ShopeePay, QRIS',
               onTap: () => _showMessage('Pengaturan pembayaran dibuka')),
           const SizedBox(height: 18),
-          Text('Preferensi',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w800)),
+
+          Text(
+            'Preferensi',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w800),
+          ),
           const SizedBox(height: 8),
           Card(
             child: SwitchListTile.adaptive(
@@ -288,6 +323,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
+// ===== STAT CARD YANG SUDAH DIPERBAIKI =====
 class _StatCard extends StatelessWidget {
   const _StatCard({required this.value, required this.label});
   final String value;
@@ -297,24 +333,44 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.border),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(value,
-                style: const TextStyle(
+            // PERBAIKAN: Value pakai FittedBox (auto-scale)
+            SizedBox(
+              height: 22,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  value,
+                  style: const TextStyle(
                     color: AppColors.primary,
                     fontSize: 17,
-                    fontWeight: FontWeight.w800)),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 4),
-            Text(label,
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(color: AppColors.mutedText, fontSize: 10)),
+            // PERBAIKAN: Label pakai maxLines 2 + ellipsis
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppColors.mutedText,
+                fontSize: 10,
+                height: 1.1,
+              ),
+            ),
           ],
         ),
       ),
@@ -340,10 +396,12 @@ class _ProfileTile extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         leading: Icon(icon, color: AppColors.primary),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        title:
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle: Text(subtitle),
         trailing: const Icon(Icons.chevron_right_rounded),
       ),
     );
   }
+  //e
 }
