@@ -76,8 +76,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(Icons.eco_rounded,
-                        size: 72, color: AppColors.primary),
+                    Image.asset(
+                      'assets/logo.jpeg',
+                      width: 230,
+                      height: 170,
+                      fit: BoxFit.contain,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Selamat datang di FoodRescue',

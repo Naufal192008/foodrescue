@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 import '../../utils/app_colors.dart';
-import '../providers/admin_provider.dart';
 
 class _AdminProduct {
   _AdminProduct({
@@ -33,11 +31,46 @@ class ProductsPage extends StatefulWidget {
 class _ProductsPageState extends State<ProductsPage> {
   final _searchCtrl = TextEditingController();
   final List<_AdminProduct> _products = [
-    _AdminProduct(id: 'P001', name: 'Surprise Box Roti & Pastry', storeName: 'Kopi Senja', price: 25000, stock: 5, category: 'Bakery', active: true),
-    _AdminProduct(id: 'P002', name: 'Paket Nasi Ayam Hemat', storeName: 'Dapur Ibu Rina', price: 18000, stock: 8, category: 'Meal', active: true),
-    _AdminProduct(id: 'P003', name: 'Fruit Bowl Segar', storeName: 'Green Market', price: 15000, stock: 3, category: 'Fruit', active: true),
-    _AdminProduct(id: 'P004', name: 'Paket Sarapan Hemat', storeName: 'Kopi Senja', price: 18000, stock: 8, category: 'Meal', active: true),
-    _AdminProduct(id: 'P005', name: 'Donat Gula Spesial', storeName: 'Bakery Corner', price: 12000, stock: 0, category: 'Bakery', active: false),
+    _AdminProduct(
+        id: 'P001',
+        name: 'Surprise Box Roti & Pastry',
+        storeName: 'Kopi Senja',
+        price: 25000,
+        stock: 5,
+        category: 'Bakery',
+        active: true),
+    _AdminProduct(
+        id: 'P002',
+        name: 'Paket Nasi Ayam Hemat',
+        storeName: 'Dapur Ibu Rina',
+        price: 18000,
+        stock: 8,
+        category: 'Meal',
+        active: true),
+    _AdminProduct(
+        id: 'P003',
+        name: 'Fruit Bowl Segar',
+        storeName: 'Green Market',
+        price: 15000,
+        stock: 3,
+        category: 'Fruit',
+        active: true),
+    _AdminProduct(
+        id: 'P004',
+        name: 'Paket Sarapan Hemat',
+        storeName: 'Kopi Senja',
+        price: 18000,
+        stock: 8,
+        category: 'Meal',
+        active: true),
+    _AdminProduct(
+        id: 'P005',
+        name: 'Donat Gula Spesial',
+        storeName: 'Bakery Corner',
+        price: 12000,
+        stock: 0,
+        category: 'Bakery',
+        active: false),
   ];
 
   @override
@@ -67,7 +100,8 @@ class _ProductsPageState extends State<ProductsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Manajemen Produk',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
                   SizedBox(height: 4),
                   Text('Kelola semua produk di platform',
                       style: TextStyle(color: AppColors.mutedText)),
@@ -78,7 +112,8 @@ class _ProductsPageState extends State<ProductsPage> {
               onPressed: () => _form(),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               ),
               icon: const Icon(Icons.add_rounded),
               label: const Text('Tambah Produk',
@@ -109,10 +144,12 @@ class _ProductsPageState extends State<ProductsPage> {
               ),
               child: Column(children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   decoration: const BoxDecoration(
                     color: Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(18)),
                   ),
                   child: const Row(children: [
                     Expanded(flex: 3, child: _H('PRODUK')),
@@ -167,8 +204,7 @@ class _ProductsPageState extends State<ProductsPage> {
           ),
           Expanded(
               flex: 2,
-              child: Text(p.storeName,
-                  style: const TextStyle(fontSize: 13))),
+              child: Text(p.storeName, style: const TextStyle(fontSize: 13))),
           Expanded(
             flex: 2,
             child: Container(
@@ -186,8 +222,7 @@ class _ProductsPageState extends State<ProductsPage> {
           ),
           Expanded(
             flex: 2,
-            child: Text(
-                'Rp ${NumberFormat('#,###', 'id_ID').format(p.price)}',
+            child: Text('Rp ${NumberFormat('#,###', 'id_ID').format(p.price)}',
                 style: const TextStyle(
                     color: AppColors.primary, fontWeight: FontWeight.w900)),
           ),
@@ -196,9 +231,7 @@ class _ProductsPageState extends State<ProductsPage> {
             child: Text('${p.stock}',
                 style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    color: p.stock == 0
-                        ? AppColors.danger
-                        : AppColors.text)),
+                    color: p.stock == 0 ? AppColors.danger : AppColors.text)),
           ),
           Expanded(
             flex: 2,
@@ -208,8 +241,7 @@ class _ProductsPageState extends State<ProductsPage> {
                 icon: const Icon(Icons.edit_rounded,
                     color: AppColors.secondary, size: 18),
                 style: IconButton.styleFrom(
-                  backgroundColor:
-                      AppColors.secondary.withValues(alpha: 0.1),
+                  backgroundColor: AppColors.secondary.withValues(alpha: 0.1),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                 ),
@@ -240,8 +272,8 @@ class _ProductsPageState extends State<ProductsPage> {
   Future<void> _form({_AdminProduct? product}) async {
     final nameCtrl = TextEditingController(text: product?.name ?? '');
     final storeCtrl = TextEditingController(text: product?.storeName ?? '');
-    final priceCtrl = TextEditingController(
-        text: product?.price.toString() ?? '');
+    final priceCtrl =
+        TextEditingController(text: product?.price.toString() ?? '');
     final stockCtrl =
         TextEditingController(text: product?.stock.toString() ?? '');
     final catCtrl = TextEditingController(text: product?.category ?? '');
@@ -288,8 +320,9 @@ class _ProductsPageState extends State<ProductsPage> {
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                           labelText: 'Harga', border: OutlineInputBorder()),
-                      validator: (v) =>
-                          v == null || int.tryParse(v) == null ? 'Angka tidak valid' : null,
+                      validator: (v) => v == null || int.tryParse(v) == null
+                          ? 'Angka tidak valid'
+                          : null,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -299,8 +332,9 @@ class _ProductsPageState extends State<ProductsPage> {
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                           labelText: 'Stok', border: OutlineInputBorder()),
-                      validator: (v) =>
-                          v == null || int.tryParse(v) == null ? 'Angka tidak valid' : null,
+                      validator: (v) => v == null || int.tryParse(v) == null
+                          ? 'Angka tidak valid'
+                          : null,
                     ),
                   ),
                 ]),

@@ -8,7 +8,6 @@ import '../utils/app_colors.dart';
 import 'explore_screen.dart';
 import 'home_screen.dart';
 import 'profile_screen.dart';
-import 'store_screen.dart';
 import 'ticket_screen.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -29,6 +28,7 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
+  final _ticketKey = GlobalKey<_TicketPlaceholderScreenState>();
 
   late final List<Widget> _screens;
 
@@ -37,9 +37,13 @@ class _MainNavigationState extends State<MainNavigation> {
     super.initState();
     _screens = [
       const ExploreScreen(),
-      const TicketPlaceholderScreen(),
-      const HomeScreen(),
-      const StoreScreen(),
+      TicketPlaceholderScreen(key: _ticketKey),
+      HomeScreen(
+        onOpenFavorites: () {
+          _ticketKey.currentState?.showFavorites();
+          setState(() => _currentIndex = 1);
+        },
+      ),
       ProfileScreen(
         username: widget.username,
         name: widget.name,
@@ -73,11 +77,6 @@ class _MainNavigationState extends State<MainNavigation> {
             label: 'Dampak',
           ),
           NavigationDestination(
-            icon: Icon(Icons.storefront_outlined),
-            selectedIcon: Icon(Icons.storefront_rounded),
-            label: 'Toko Saya',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.person_outline_rounded),
             selectedIcon: Icon(Icons.person_rounded),
             label: 'Profil',
@@ -101,6 +100,8 @@ class TicketPlaceholderScreen extends StatefulWidget {
 
 class _TicketPlaceholderScreenState extends State<TicketPlaceholderScreen> {
   int _tab = 0;
+
+  void showFavorites() => setState(() => _tab = 1);
 
   @override
   Widget build(BuildContext context) {

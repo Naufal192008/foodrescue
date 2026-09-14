@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../utils/app_colors.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -69,7 +68,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
             children: [
-              const Icon(Icons.eco_rounded, size: 56, color: AppColors.primary),
+              Image.asset(
+                'assets/logo.jpeg',
+                width: 200,
+                height: 145,
+                fit: BoxFit.contain,
+              ),
               const SizedBox(height: 12),
               Text(
                 'Buat akun FoodRescue',

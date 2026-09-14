@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import 'admin/admin_login.dart';
 import 'providers/cart_provider.dart';
 import 'providers/like_provider.dart';
-import 'screens/main_navigation.dart';
+import 'screens/splash_screen.dart';
 import 'utils/app_colors.dart';
 
 void main() {
@@ -17,8 +16,8 @@ class FoodRescueApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isAdmin = Uri.base.path.contains('admin') ||
-        Uri.base.fragment.contains('admin');
+    final isAdmin =
+        Uri.base.path.contains('admin') || Uri.base.fragment.contains('admin');
 
     final baseTheme = ThemeData(
       useMaterial3: true,
@@ -53,13 +52,7 @@ class FoodRescueApp extends StatelessWidget {
             filled: true,
           ),
         ),
-        home: isAdmin
-            ? AdminLoginScreen()
-            : const MainNavigation(
-                username: 'Budi Santoso',
-                name: 'Budi Santoso',
-                email: 'budi.santoso@email.com',
-              ),
+        home: SplashScreen(isAdmin: isAdmin),
       ),
     );
   }
