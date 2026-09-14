@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../utils/app_colors.dart';
 
@@ -315,13 +314,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       const Text(
                         'Tindakan di bawah ini tidak dapat dibatalkan. Gunakan dengan hati-hati.',
-                        style: TextStyle(fontSize: 12, color: AppColors.mutedText),
+                        style:
+                            TextStyle(fontSize: 12, color: AppColors.mutedText),
                       ),
                       const SizedBox(height: 12),
                       OutlinedButton.icon(
                         onPressed: () async {
-                          final ok = await _confirmDialog(
-                              'Clear Audit Logs?',
+                          final ok = await _confirmDialog('Clear Audit Logs?',
                               'Semua log aktivitas akan dihapus permanen.');
                           if (ok) _msg('Audit logs dibersihkan');
                         },
@@ -346,9 +345,11 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _checkPolicy(String p) {
     final v = _newPwdCtrl.text;
     if (p.contains('8')) return v.length >= 8;
-    if (p.contains('besar')) return v.contains(RegExp(r'[A-Z]')) && v.contains(RegExp(r'[a-z]'));
+    if (p.contains('besar'))
+      return v.contains(RegExp(r'[A-Z]')) && v.contains(RegExp(r'[a-z]'));
     if (p.contains('angka')) return v.contains(RegExp(r'[0-9]'));
-    if (p.contains('simbol')) return v.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'));
+    if (p.contains('simbol'))
+      return v.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'));
     return false;
   }
 
@@ -364,7 +365,9 @@ class _SettingsPageState extends State<SettingsPage> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-              color: danger ? AppColors.danger.withValues(alpha: 0.4) : const Color(0xFFE2E8E3)),
+              color: danger
+                  ? AppColors.danger.withValues(alpha: 0.4)
+                  : const Color(0xFFE2E8E3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

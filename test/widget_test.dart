@@ -16,6 +16,8 @@ void main() {
     await tester.pumpWidget(const FoodRescueApp());
     await tester.pumpAndSettle();
 
+    await tester.tap(find.text('Masuk sebagai User'));
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'user');
     await tester.enterText(find.byType(TextFormField).at(1), 'user123');
     await tester.tap(find.text('Masuk'));

@@ -15,15 +15,30 @@ dependencies:
   qr_flutter: ^4.1.0
   google_fonts: ^6.2.1
   flutter_rating_bar: ^4.0.1
+<<<<<<< HEAD
   crypto: ^3.0.3
   flutter_dotenv: ^5.1.0
+=======
+  http: ^1.6.0
+  shared_preferences: ^2.5.5
+>>>>>>> 8e12a9f9ec6abf94a5e703b3a39ba5c0400d9447
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/logo.jpeg
 
 flutter:
   uses-material-design: true
   assets:
+<<<<<<< HEAD
     - .env
+=======
+    - assets/logo.jpeg
+>>>>>>> 8e12a9f9ec6abf94a5e703b3a39ba5c0400d9447

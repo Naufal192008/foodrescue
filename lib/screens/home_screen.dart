@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
 import '../widgets/impact_card.dart';
+import 'user_tools_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.onOpenFavorites});
+
+  final VoidCallback? onOpenFavorites;
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +62,8 @@ class HomeScreen extends StatelessWidget {
                 Text(
                   'Target Bulan Ini',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
+                        fontWeight: FontWeight.w800,
+                      ),
                 ),
                 const Text(
                   '6/10 Box',
@@ -167,7 +170,24 @@ class HomeScreen extends StatelessWidget {
                 leading: Icon(item.$1, color: AppColors.primary),
                 title: Text(item.$2),
                 trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () {},
+                onTap: () {
+                  switch (item.$2) {
+                    case 'Riwayat':
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const HistoryScreen(),
+                        ),
+                      );
+                    case 'Toko Favorit':
+                      onOpenFavorites?.call();
+                    case 'Metode Pembayaran':
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const PaymentMethodsScreen(),
+                        ),
+                      );
+                  }
+                },
               ),
             ),
             const SizedBox(height: 8),
@@ -195,23 +215,23 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-      ),
-      Text(
-        action,
-        style: const TextStyle(
-          color: AppColors.primary,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    ],
-  );
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          Text(
+            action,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      );
 }
 
 class _BadgeCard extends StatelessWidget {
@@ -226,28 +246,28 @@ class _BadgeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    width: 155,
-    margin: const EdgeInsets.only(right: 12),
-    padding: const EdgeInsets.all(14),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: AppColors.border),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, color: AppColors.secondary, size: 30),
-        const Spacer(),
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
-        const SizedBox(height: 2),
-        Text(
-          subtitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppColors.mutedText, fontSize: 11),
+        width: 155,
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.border),
         ),
-      ],
-    ),
-  );
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: AppColors.secondary, size: 30),
+            const Spacer(),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: AppColors.mutedText, fontSize: 11),
+            ),
+          ],
+        ),
+      );
 }

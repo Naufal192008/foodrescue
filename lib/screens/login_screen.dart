@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/security_utils.dart';
 import 'main_navigation.dart';
@@ -37,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
+<<<<<<< HEAD
     await Future<void>.delayed(const Duration(milliseconds: 350));
 
     final username = _usernameController.text.trim().toLowerCase();
@@ -46,16 +48,60 @@ class _LoginScreenState extends State<LoginScreen> {
     final isValid = account != null &&
         SecurityUtils.verifyPassword(
             _passwordController.text, account['password']!);
+=======
+
+    final input = _usernameController.text.trim();
+    final password = _passwordController.text;
+
+    final demoAccount = DemoAccounts.accounts[input.toLowerCase()];
+
+    Map<String, dynamic> result;
+    if (demoAccount != null && demoAccount['password'] == password) {
+      result = {
+        'success': true,
+        'data': {
+          'role': demoAccount['role'],
+          'name': demoAccount['name'],
+          'email': demoAccount['email'],
+        }
+      };
+    } else {
+      result = await ApiService.login(input, password);
+    }
+>>>>>>> 8e12a9f9ec6abf94a5e703b3a39ba5c0400d9447
 
     if (!mounted) return;
     setState(() => _isLoading = false);
 
+<<<<<<< HEAD
     if (!isValid) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Username atau password salah.')),
+=======
+    if (result['success'] == true) {
+      final data = result['data'] ?? {};
+      final role = data['role'] ?? 'user';
+      final name = data['name'] ?? input;
+      final email = data['email'] ?? input;
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => role == 'admin'
+              ? const AdminDashboardScreen()
+              : MainNavigation(
+                  username: input,
+                  name: name,
+                  email: email,
+                ),
+        ),
       );
-      return;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? 'Login gagal.')),
+>>>>>>> 8e12a9f9ec6abf94a5e703b3a39ba5c0400d9447
+      );
     }
+<<<<<<< HEAD
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
@@ -68,6 +114,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
       ),
     );
+=======
+>>>>>>> 8e12a9f9ec6abf94a5e703b3a39ba5c0400d9447
   }
 
   @override
@@ -84,8 +132,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(Icons.eco_rounded,
-                        size: 72, color: AppColors.primary),
+                    Image.asset(
+                      'assets/logo.jpeg',
+                      width: 230,
+                      height: 170,
+                      fit: BoxFit.contain,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Selamat datang di FoodRescue',

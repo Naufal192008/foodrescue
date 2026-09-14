@@ -49,4 +49,22 @@ class Product {
         itemsInBag: itemsInBag,
         likes: likes ?? this.likes,
       );
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id']?.toString() ?? '',
+      name: json['name'] ?? '',
+      storeName: json['store_name'] ?? json['storeName'] ?? '',
+      distance: (json['distance'] ?? 0).toDouble(),
+      originalPrice: json['original_price'] ?? json['originalPrice'] ?? 0,
+      discountPrice: json['discount_price'] ?? json['discountPrice'] ?? 0,
+      imageUrl: json['image_url'] ?? json['imageUrl'] ?? '',
+      stock: json['stock'] ?? 0,
+      pickupStart: DateTime.tryParse(json['pickup_start'] ?? json['pickupStart'] ?? '') ?? DateTime.now(),
+      pickupEnd: DateTime.tryParse(json['pickup_end'] ?? json['pickupEnd'] ?? '') ?? DateTime.now(),
+      rating: (json['rating'] ?? 0).toDouble(),
+      description: json['description'] ?? '',
+      itemsInBag: List<String>.from(json['items_in_bag'] ?? json['itemsInBag'] ?? []),
+    );
+  }
 }

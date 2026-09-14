@@ -94,8 +94,8 @@ class _UsersPageState extends State<UsersPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Manajemen Pengguna',
-                    style: TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.w900)),
+                    style:
+                        TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
                 SizedBox(height: 4),
                 Text('Kelola semua pengguna platform FoodRescue',
                     style: TextStyle(color: AppColors.mutedText)),
@@ -133,15 +133,20 @@ class _UsersPageState extends State<UsersPage> {
             ),
           ),
           const SizedBox(width: 12),
-          _dropdown('Role', _roleFilter,
+          _dropdown(
+              'Role',
+              _roleFilter,
               ['Semua', 'admin', 'superAdmin', 'storeOwner', 'customer'],
               (v) => setState(() {
                     _roleFilter = v!;
                     _page = 0;
                   })),
           const SizedBox(width: 12),
-          _dropdown('Status', _statusFilter,
-              ['Semua', 'active', 'suspended', 'banned'], (v) => setState(() {
+          _dropdown(
+              'Status',
+              _statusFilter,
+              ['Semua', 'active', 'suspended', 'banned'],
+              (v) => setState(() {
                     _statusFilter = v!;
                     _page = 0;
                   })),
@@ -209,8 +214,7 @@ class _UsersPageState extends State<UsersPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(u.name,
-                          style:
-                              const TextStyle(fontWeight: FontWeight.w800)),
+                          style: const TextStyle(fontWeight: FontWeight.w800)),
                       Text(u.email,
                           style: const TextStyle(
                               color: AppColors.mutedText, fontSize: 12)),
@@ -266,8 +270,7 @@ class _UsersPageState extends State<UsersPage> {
         ),
       );
 
-  Widget _iconBtn(IconData icon, Color color, VoidCallback onTap) =>
-      IconButton(
+  Widget _iconBtn(IconData icon, Color color, VoidCallback onTap) => IconButton(
         onPressed: onTap,
         icon: Icon(icon, size: 18, color: color),
         tooltip: icon.codePoint.toString(),
@@ -282,7 +285,8 @@ class _UsersPageState extends State<UsersPage> {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: Text(u.name, style: const TextStyle(fontWeight: FontWeight.w900)),
+        title:
+            Text(u.name, style: const TextStyle(fontWeight: FontWeight.w900)),
         content: SizedBox(
           width: 420,
           child: Column(
@@ -294,13 +298,15 @@ class _UsersPageState extends State<UsersPage> {
               _detail('Telepon', u.phone),
               _detail('Role', u.role.name),
               _detail('Status', u.status.name),
-              _detail('Bergabung',
-                  DateFormat('dd MMM yyyy').format(u.joinedAt)),
-              _detail('Terakhir Login',
-                  u.lastLogin == null ? '-' : DateFormat('dd MMM yyyy, HH:mm').format(u.lastLogin!)),
-              _detail('Total Order', '${u.totalOrders}'),
               _detail(
-                  'Total Spent',
+                  'Bergabung', DateFormat('dd MMM yyyy').format(u.joinedAt)),
+              _detail(
+                  'Terakhir Login',
+                  u.lastLogin == null
+                      ? '-'
+                      : DateFormat('dd MMM yyyy, HH:mm').format(u.lastLogin!)),
+              _detail('Total Order', '${u.totalOrders}'),
+              _detail('Total Spent',
                   'Rp ${NumberFormat('#,###', 'id_ID').format(u.totalSpent)}'),
             ],
           ),
@@ -340,7 +346,8 @@ class _UsersPageState extends State<UsersPage> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSt) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           title: Text(user == null ? 'Tambah Pengguna' : 'Edit Pengguna',
               style: const TextStyle(fontWeight: FontWeight.w900)),
           content: SizedBox(
@@ -363,41 +370,40 @@ class _UsersPageState extends State<UsersPage> {
                     TextFormField(
                       controller: emailCtrl,
                       decoration: const InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder()),
-                      validator: (v) =>
-                          v == null || !v.contains('@') ? 'Email tidak valid' : null,
+                          labelText: 'Email', border: OutlineInputBorder()),
+                      validator: (v) => v == null || !v.contains('@')
+                          ? 'Email tidak valid'
+                          : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: phoneCtrl,
                       decoration: const InputDecoration(
-                          labelText: 'Telepon',
-                          border: OutlineInputBorder()),
+                          labelText: 'Telepon', border: OutlineInputBorder()),
                       validator: (v) =>
                           v == null || v.trim().isEmpty ? 'Wajib diisi' : null,
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<UserRole>(
-                      value: role,
+                      initialValue: role,
                       decoration: const InputDecoration(
                           labelText: 'Role', border: OutlineInputBorder()),
                       items: UserRole.values
-                          .map((e) => DropdownMenuItem(
-                              value: e, child: Text(e.name)))
+                          .map((e) =>
+                              DropdownMenuItem(value: e, child: Text(e.name)))
                           .toList(),
                       onChanged: (v) => setSt(() => role = v!),
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<UserStatus>(
-                      value: status,
-                      decoration: const InputDecoration(
-                          labelText: 'Status', border: OutlineInputBorder()),
-                      items: UserStatus.values
-                          .map((e) => DropdownMenuItem(
-                              value: e, child: Text(e.name)))
-                          .toList(),
-                      onChanged: (v) => setSt(() => status = v!)),
+                        initialValue: status,
+                        decoration: const InputDecoration(
+                            labelText: 'Status', border: OutlineInputBorder()),
+                        items: UserStatus.values
+                            .map((e) =>
+                                DropdownMenuItem(value: e, child: Text(e.name)))
+                            .toList(),
+                        onChanged: (v) => setSt(() => status = v!)),
                   ],
                 ),
               ),
@@ -454,9 +460,8 @@ class _UsersPageState extends State<UsersPage> {
             Text('Halaman ${_page + 1} dari $totalPages',
                 style: const TextStyle(fontWeight: FontWeight.w700)),
             IconButton(
-              onPressed: _page < totalPages - 1
-                  ? () => setState(() => _page++)
-                  : null,
+              onPressed:
+                  _page < totalPages - 1 ? () => setState(() => _page++) : null,
               icon: const Icon(Icons.chevron_right_rounded),
             ),
           ],
@@ -522,8 +527,7 @@ class _StatusBadge extends StatelessWidget {
         Container(
             width: 6,
             height: 6,
-            decoration:
-                BoxDecoration(color: data.$1, shape: BoxShape.circle)),
+            decoration: BoxDecoration(color: data.$1, shape: BoxShape.circle)),
         const SizedBox(width: 6),
         Text(data.$2,
             style: TextStyle(
