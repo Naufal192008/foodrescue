@@ -277,14 +277,20 @@ class ProductDetailScreen extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                         ),
                   ),
-                  ...['GoPay', 'OVO', 'ShopeePay', 'QRIS'].map(
-                    (method) => RadioListTile<String>(
-                      value: method,
-                      groupValue: 'GoPay',
-                      onChanged: (_) {},
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(method),
-                      activeColor: AppColors.primary,
+                  RadioGroup<String>(
+                    groupValue: 'GoPay',
+                    onChanged: (_) {},
+                    child: Column(
+                      children: [
+                        ...['GoPay', 'OVO', 'ShopeePay', 'QRIS'].map(
+                          (method) => RadioListTile<String>(
+                            value: method,
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(method),
+                            activeColor: AppColors.primary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

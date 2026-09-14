@@ -1,32 +1,49 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://139.190.96.203:8091/api';
+  // SECURITY: API wajib HTTPS. Jangan masukkan URL HTTP atau rahasia ke source code.
+  static final Uri? _baseUri = _readBaseUri();
+  static const _secureStorage = FlutterSecureStorage();
+  static const _tokenKey = 'jwt_token';
 
-  // ===== TOKEN MANAGEMENT =====
+  static Uri? _readBaseUri() {
+    final value = dotenv.env['API_BASE_URL']?.trim();
+    if (value == null || value.isEmpty) return null;
+    final uri = Uri.tryParse(value);
+    return uri != null && uri.scheme == 'https' ? uri : null;
+  }
+
+  static Uri _endpoint(String path) {
+    final base = _baseUri;
+    if (base == null) {
+      throw const ApiException('API belum dikonfigurasi dengan HTTPS', 503);
+    }
+    return base.resolve(path.replaceFirst(RegExp(r'^/'), ''));
+  }
+
+  // SECURITY: JWT disimpan di secure storage, bukan SharedPreferences.
   static Future<void> saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('jwt_token', token);
+    if (token.trim().isEmpty) throw const ApiException('Token kosong', 401);
+    await _secureStorage.write(key: _tokenKey, value: token);
   }
 
   static Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('jwt_token');
+    return _secureStorage.read(key: _tokenKey);
   }
 
   static Future<void> clearToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('jwt_token');
+    await _secureStorage.delete(key: _tokenKey);
   }
 
-  // ===== LOGIN =====
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/login'),
+        _endpoint('/login'),
+        // SECURITY: credential traffic is sent only over TLS.
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,
@@ -36,6 +53,12 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        if (data is! Map<String, dynamic> || data['token'] is! String) {
+          return {
+            'success': false,
+            'message': 'Respons autentikasi tidak valid'
+          };
+        }
         if (data['token'] != null) {
           await saveToken(data['token']);
         }
@@ -43,7 +66,9 @@ class ApiService {
       } else {
         return {'success': false, 'message': 'Email atau password salah'};
       }
-    } catch (e) {
+    } on ApiException catch (e) {
+      return {'success': false, 'message': e.message};
+    } catch (_) {
       return {'success': false, 'message': 'Gagal terhubung ke server'};
     }
   }
@@ -53,7 +78,7 @@ class ApiService {
     try {
       final token = await getToken();
       final response = await http.get(
-        Uri.parse('$baseUrl/foods'),
+        _endpoint('/foods'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
@@ -70,33 +95,46 @@ class ApiService {
     }
   }
 
-  // ===== GET USERS (ADMIN) =====
   static Future<List<Map<String, dynamic>>> getUsers(String? token) async {
-    if (!_isValidToken(token)) {
-      throw ApiException('Unauthorized: Token tidak valid', 401);
+    final response = await http.get(
+      _endpoint('/admin/users'),
+      headers: _authHeaders(token),
+    );
+    if (response.statusCode == 401 || response.statusCode == 403) {
+      throw ApiException('Akses admin ditolak', response.statusCode);
     }
-    await Future.delayed(const Duration(milliseconds: 500));
-    return [
-      {'id': 'U001', 'name': 'Budi Santoso', 'email': 'budi@email.com'},
-      {'id': 'U002', 'name': 'Alya Putri', 'email': 'alya@email.com'},
-    ];
+    if (response.statusCode != 200) {
+      throw ApiException('Gagal mengambil pengguna', response.statusCode);
+    }
+    final data = jsonDecode(response.body);
+    return List<Map<String, dynamic>>.from(data['data'] ?? data);
   }
 
-  // ===== DELETE PRODUCT (ADMIN) =====
   static Future<void> deleteProduct(String? token, String productId) async {
-    if (!_isValidToken(token)) {
-      throw ApiException('Unauthorized: Token tidak valid', 401);
+    if (productId.trim().isEmpty) {
+      throw const ApiException('ID produk tidak valid', 400);
     }
-    if (!token!.contains('admin')) {
-      throw ApiException(
-          'Forbidden: Hanya admin yang bisa menghapus produk', 403);
+    final response = await http.delete(
+      _endpoint('/admin/products/${Uri.encodeComponent(productId)}'),
+      headers: _authHeaders(token),
+    );
+    if (response.statusCode == 401 || response.statusCode == 403) {
+      throw ApiException('Akses admin ditolak', response.statusCode);
     }
-    await Future.delayed(const Duration(milliseconds: 500));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException('Produk gagal dihapus', response.statusCode);
+    }
   }
 
-  // ===== HELPER =====
-  static bool _isValidToken(String? token) {
-    return token != null && token.isNotEmpty;
+  // SECURITY: role/permission wajib diverifikasi backend; token bukan bukti role.
+  static Map<String, String> _authHeaders(String? token) {
+    if (token == null || token.trim().isEmpty) {
+      throw const ApiException('Sesi tidak valid', 401);
+    }
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
   }
 }
 
@@ -104,7 +142,7 @@ class ApiException implements Exception {
   final String message;
   final int statusCode;
 
-  ApiException(this.message, this.statusCode);
+  const ApiException(this.message, this.statusCode);
 
   @override
   String toString() => 'ApiException: $message (Status: $statusCode)';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
-import '../utils/app_colors.dart';
 import '../utils/security_utils.dart';
 import 'login_screen.dart';
 
@@ -32,6 +32,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _register() {
+    // SECURITY: local registration is a debug-only fixture; production must use
+    // a backend registration endpoint with verification and rate limiting.
+    if (!kDebugMode) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pendaftaran belum tersedia.')),
+      );
+      return;
+    }
     if (!_formKey.currentState!.validate()) return;
 
     final username = _usernameController.text.trim().toLowerCase();
@@ -124,7 +132,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 validator: (value) {
                   final error = _required(value, 'Email');
                   if (error != null) return error;
-                  return value!.contains('@') ? null : 'Email tidak valid';
+                  return SecurityUtils.isValidEmail(value!.trim())
+                      ? null
+                      : 'Email tidak valid';
                 },
               ),
               const SizedBox(height: 14),
@@ -147,8 +157,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 validator: (value) {
                   final error = _required(value, 'Password');
                   if (error != null) return error;
-                  return value!.length < 6
-                      ? 'Password minimal 6 karakter'
+                  return !SecurityUtils.isStrongPassword(value!)
+                      ? 'Gunakan minimal 8 karakter, huruf besar-kecil, angka, dan simbol'
                       : null;
                 },
               ),

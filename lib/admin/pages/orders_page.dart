@@ -46,24 +46,22 @@ class _OrdersPageState extends State<OrdersPage> {
           const Text('Pantau dan kelola semua transaksi',
               style: TextStyle(color: AppColors.mutedText)),
           const SizedBox(height: 16),
-          Row(children: [
-            Expanded(
-              child: TextField(
-                controller: _searchCtrl,
-                onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                  hintText: 'Cari kode, customer, toko, produk...',
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE2E8E3))),
-                ),
+          LayoutBuilder(builder: (context, constraints) {
+            final narrow = constraints.maxWidth < 700;
+            final searchField = TextField(
+              controller: _searchCtrl,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                hintText: 'Cari kode, customer, toko, produk...',
+                prefixIcon: const Icon(Icons.search_rounded),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8E3))),
               ),
-            ),
-            const SizedBox(width: 12),
-            Container(
+            );
+            final filter = Container(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -74,15 +72,34 @@ class _OrdersPageState extends State<OrdersPage> {
                 child: DropdownButton<String>(
                   value: _statusFilter,
                   onChanged: (v) => setState(() => _statusFilter = v!),
-                  items: ['Semua', 'Menunggu', 'Siap Diambil', 'Selesai', 'Dibatalkan']
+                  items: [
+                    'Semua',
+                    'Menunggu',
+                    'Siap Diambil',
+                    'Selesai',
+                    'Dibatalkan'
+                  ]
                       .map((e) => DropdownMenuItem(
                           value: e,
                           child: Text(e, style: const TextStyle(fontSize: 13))))
                       .toList(),
                 ),
               ),
-            ),
-          ]),
+            );
+            return narrow
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                        searchField,
+                        const SizedBox(height: 10),
+                        filter,
+                      ])
+                : Row(children: [
+                    Expanded(child: searchField),
+                    const SizedBox(width: 12),
+                    filter
+                  ]);
+          }),
           const SizedBox(height: 16),
           Expanded(
             child: Container(
@@ -116,7 +133,8 @@ class _OrdersPageState extends State<OrdersPage> {
                         ? const Center(child: Text('Tidak ada pesanan'))
                         : ListView.separated(
                             itemCount: list.length,
-                            separatorBuilder: (_, __) => const Divider(height: 1),
+                            separatorBuilder: (_, __) =>
+                                const Divider(height: 1),
                             itemBuilder: (_, i) => _orderRow(list[i]),
                           ),
                   ),
@@ -172,8 +190,7 @@ class _OrdersPageState extends State<OrdersPage> {
           Expanded(
             flex: 2,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: _statusColor(o.status).withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
@@ -192,12 +209,15 @@ class _OrdersPageState extends State<OrdersPage> {
                 onSelected: (v) {
                   context.read<AdminProvider>().updateOrderStatus(o.id, v);
                 },
-                itemBuilder: (_) => ['Menunggu', 'Siap Diambil', 'Selesai', 'Dibatalkan']
-                    .map((e) => PopupMenuItem(value: e, child: Text(e)))
-                    .toList(),
+                itemBuilder: (_) => [
+                  'Menunggu',
+                  'Siap Diambil',
+                  'Selesai',
+                  'Dibatalkan'
+                ].map((e) => PopupMenuItem(value: e, child: Text(e))).toList(),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -215,6 +235,7 @@ class _OrdersPageState extends State<OrdersPage> {
               const SizedBox(width: 6),
               IconButton(
                 onPressed: () async {
+                  final provider = context.read<AdminProvider>();
                   final ok = await ConfirmDialog.show(
                     context,
                     title: 'Hapus Pesanan?',
@@ -222,8 +243,8 @@ class _OrdersPageState extends State<OrdersPage> {
                     confirmLabel: 'Hapus',
                     danger: true,
                   );
-                  if (ok && context.mounted) {
-                    context.read<AdminProvider>().deleteOrder(o.id);
+                  if (ok) {
+                    provider.deleteOrder(o.id);
                   }
                 },
                 icon: const Icon(Icons.delete_rounded,

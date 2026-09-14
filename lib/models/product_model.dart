@@ -13,6 +13,7 @@ class Product {
     required this.rating,
     required this.description,
     required this.itemsInBag,
+    this.category = 'Umum',
     this.likes = 0,
   });
 
@@ -29,11 +30,12 @@ class Product {
   final double rating;
   final String description;
   final List<String> itemsInBag;
+  final String category;
   final int likes;
 
   int get savings => originalPrice - discountPrice;
 
-  Product copyWith({int? likes}) => Product(
+  Product copyWith({int? stock, int? likes}) => Product(
         id: id,
         name: name,
         storeName: storeName,
@@ -41,12 +43,13 @@ class Product {
         originalPrice: originalPrice,
         discountPrice: discountPrice,
         imageUrl: imageUrl,
-        stock: stock,
+        stock: stock ?? this.stock,
         pickupStart: pickupStart,
         pickupEnd: pickupEnd,
         rating: rating,
         description: description,
         itemsInBag: itemsInBag,
+        category: category,
         likes: likes ?? this.likes,
       );
 
@@ -60,11 +63,17 @@ class Product {
       discountPrice: json['discount_price'] ?? json['discountPrice'] ?? 0,
       imageUrl: json['image_url'] ?? json['imageUrl'] ?? '',
       stock: json['stock'] ?? 0,
-      pickupStart: DateTime.tryParse(json['pickup_start'] ?? json['pickupStart'] ?? '') ?? DateTime.now(),
-      pickupEnd: DateTime.tryParse(json['pickup_end'] ?? json['pickupEnd'] ?? '') ?? DateTime.now(),
+      pickupStart: DateTime.tryParse(
+              json['pickup_start'] ?? json['pickupStart'] ?? '') ??
+          DateTime.now(),
+      pickupEnd:
+          DateTime.tryParse(json['pickup_end'] ?? json['pickupEnd'] ?? '') ??
+              DateTime.now(),
       rating: (json['rating'] ?? 0).toDouble(),
       description: json['description'] ?? '',
-      itemsInBag: List<String>.from(json['items_in_bag'] ?? json['itemsInBag'] ?? []),
+      itemsInBag:
+          List<String>.from(json['items_in_bag'] ?? json['itemsInBag'] ?? []),
+      category: json['category'] ?? 'Umum',
     );
   }
 }

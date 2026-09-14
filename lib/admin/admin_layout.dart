@@ -23,6 +23,7 @@ class AdminLayout extends StatefulWidget {
 
 class _AdminLayoutState extends State<AdminLayout> {
   int _selectedIndex = 0;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final _pages = const [
     DashboardPage(),
@@ -55,11 +56,12 @@ class _AdminLayoutState extends State<AdminLayout> {
     return ChangeNotifierProvider(
       create: (_) => AdminProvider(),
       child: Scaffold(
+        key: _scaffoldKey,
         backgroundColor: const Color(0xFFF1F5F9),
         drawer: isCompact
             ? AdminSidebar(
                 selectedIndex: _selectedIndex,
-              forceExpanded: true,
+                forceExpanded: true,
                 onSelect: (i) {
                   setState(() => _selectedIndex = i);
                   Navigator.of(context).pop();
@@ -78,7 +80,9 @@ class _AdminLayoutState extends State<AdminLayout> {
                 children: [
                   AdminTopbar(
                     title: _titles[_selectedIndex],
-                    onMenu: isCompact ? () => Scaffold.of(context).openDrawer() : null,
+                    onMenu: isCompact
+                        ? () => _scaffoldKey.currentState?.openDrawer()
+                        : null,
                   ),
                   Expanded(
                     child: IndexedStack(

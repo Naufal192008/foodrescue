@@ -2,8 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../utils/app_colors.dart';
+import '../../models/product_model.dart';
+import '../services/admin_data_service.dart';
 
 class _AdminProduct {
+  _AdminProduct.fromProduct(Product product)
+      : id = product.id,
+        name = product.name,
+        storeName = product.storeName,
+        price = product.discountPrice,
+        stock = product.stock,
+        category = product.category,
+        active = product.stock > 0;
+
   _AdminProduct({
     required this.id,
     required this.name,
@@ -20,6 +31,23 @@ class _AdminProduct {
   int stock;
   String category;
   bool active;
+
+  Product toProduct() => Product(
+        id: id,
+        name: name,
+        storeName: storeName,
+        distance: 1.5,
+        originalPrice: price * 2,
+        discountPrice: price,
+        imageUrl: '',
+        stock: stock,
+        pickupStart: DateTime.now(),
+        pickupEnd: DateTime.now().add(const Duration(hours: 4)),
+        rating: 4.5,
+        description: 'Produk FoodRescue',
+        itemsInBag: [category],
+        category: category,
+      );
 }
 
 class ProductsPage extends StatefulWidget {
@@ -30,48 +58,14 @@ class ProductsPage extends StatefulWidget {
 
 class _ProductsPageState extends State<ProductsPage> {
   final _searchCtrl = TextEditingController();
-  final List<_AdminProduct> _products = [
-    _AdminProduct(
-        id: 'P001',
-        name: 'Surprise Box Roti & Pastry',
-        storeName: 'Kopi Senja',
-        price: 25000,
-        stock: 5,
-        category: 'Bakery',
-        active: true),
-    _AdminProduct(
-        id: 'P002',
-        name: 'Paket Nasi Ayam Hemat',
-        storeName: 'Dapur Ibu Rina',
-        price: 18000,
-        stock: 8,
-        category: 'Meal',
-        active: true),
-    _AdminProduct(
-        id: 'P003',
-        name: 'Fruit Bowl Segar',
-        storeName: 'Green Market',
-        price: 15000,
-        stock: 3,
-        category: 'Fruit',
-        active: true),
-    _AdminProduct(
-        id: 'P004',
-        name: 'Paket Sarapan Hemat',
-        storeName: 'Kopi Senja',
-        price: 18000,
-        stock: 8,
-        category: 'Meal',
-        active: true),
-    _AdminProduct(
-        id: 'P005',
-        name: 'Donat Gula Spesial',
-        storeName: 'Bakery Corner',
-        price: 12000,
-        stock: 0,
-        category: 'Bakery',
-        active: false),
-  ];
+  late final List<_AdminProduct> _products;
+
+  @override
+  void initState() {
+    super.initState();
+    _products =
+        AdminDataService().products.map(_AdminProduct.fromProduct).toList();
+  }
 
   @override
   void dispose() {
@@ -94,21 +88,20 @@ class _ProductsPageState extends State<ProductsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Manajemen Produk',
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
-                  SizedBox(height: 4),
-                  Text('Kelola semua produk di platform',
-                      style: TextStyle(color: AppColors.mutedText)),
-                ],
-              ),
-            ),
-            FilledButton.icon(
+          LayoutBuilder(builder: (context, constraints) {
+            final narrow = constraints.maxWidth < 620;
+            final title = const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Manajemen Produk',
+                    style:
+                        TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                SizedBox(height: 4),
+                Text('Kelola semua produk di platform',
+                    style: TextStyle(color: AppColors.mutedText)),
+              ],
+            );
+            final action = FilledButton.icon(
               onPressed: () => _form(),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -118,8 +111,13 @@ class _ProductsPageState extends State<ProductsPage> {
               icon: const Icon(Icons.add_rounded),
               label: const Text('Tambah Produk',
                   style: TextStyle(fontWeight: FontWeight.w800)),
-            ),
-          ]),
+            );
+            return narrow
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [title, const SizedBox(height: 12), action])
+                : Row(children: [Expanded(child: title), action]);
+          }),
           const SizedBox(height: 16),
           TextField(
             controller: _searchCtrl,
@@ -250,6 +248,7 @@ class _ProductsPageState extends State<ProductsPage> {
               IconButton(
                 onPressed: () {
                   setState(() => _products.remove(p));
+                  AdminDataService().deleteProduct(p.id);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                         content: Text('Produk dihapus'),
@@ -350,26 +349,29 @@ class _ProductsPageState extends State<ProductsPage> {
               if (!formKey.currentState!.validate()) return;
               setState(() {
                 if (product == null) {
+                  final created = _AdminProduct(
+                    id: 'P${DateTime.now().millisecondsSinceEpoch}',
+                    name: nameCtrl.text.trim(),
+                    storeName: storeCtrl.text.trim(),
+                    price: int.parse(priceCtrl.text),
+                    stock: int.parse(stockCtrl.text),
+                    category: catCtrl.text.trim().isEmpty
+                        ? 'Umum'
+                        : catCtrl.text.trim(),
+                    active: true,
+                  );
                   _products.insert(
                     0,
-                    _AdminProduct(
-                      id: 'P${DateTime.now().millisecondsSinceEpoch}',
-                      name: nameCtrl.text.trim(),
-                      storeName: storeCtrl.text.trim(),
-                      price: int.parse(priceCtrl.text),
-                      stock: int.parse(stockCtrl.text),
-                      category: catCtrl.text.trim().isEmpty
-                          ? 'Umum'
-                          : catCtrl.text.trim(),
-                      active: true,
-                    ),
+                    created,
                   );
+                  AdminDataService().addProduct(created.toProduct());
                 } else {
                   product.name = nameCtrl.text.trim();
                   product.storeName = storeCtrl.text.trim();
                   product.price = int.parse(priceCtrl.text);
                   product.stock = int.parse(stockCtrl.text);
                   product.category = catCtrl.text.trim();
+                  AdminDataService().updateProduct(product.toProduct());
                 }
               });
               Navigator.pop(ctx);

@@ -204,6 +204,7 @@ class _StoresPageState extends State<StoresPage> {
               const SizedBox(width: 6),
               IconButton(
                 onPressed: () async {
+                  final provider = context.read<AdminProvider>();
                   final ok = await ConfirmDialog.show(
                     context,
                     title: 'Hapus Toko?',
@@ -212,8 +213,8 @@ class _StoresPageState extends State<StoresPage> {
                     confirmLabel: 'Hapus',
                     danger: true,
                   );
-                  if (ok && context.mounted) {
-                    context.read<AdminProvider>().deleteStore(s.id);
+                  if (ok) {
+                    provider.deleteStore(s.id);
                   }
                 },
                 icon: const Icon(Icons.delete_rounded,

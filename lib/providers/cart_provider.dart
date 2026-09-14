@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/product_model.dart';
+import '../admin/services/admin_data_service.dart';
 
 class CartProvider extends ChangeNotifier {
   final List<Product> _checkoutItems = [];
@@ -13,6 +14,8 @@ class CartProvider extends ChangeNotifier {
   void addToCart(Product product) {
     if (contains(product)) return;
     _checkoutItems.add(product);
+    // Shared local MVP flow: admin order data updates when a user claims food.
+    AdminDataService().addOrderFromProduct(product);
     notifyListeners();
   }
 

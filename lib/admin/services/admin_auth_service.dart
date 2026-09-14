@@ -3,15 +3,19 @@ import '../../services/api_service.dart';
 class AdminAuthService {
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
-    // Panggil mock API (menggunakan .env untuk kredensial)
     final response = await ApiService.login(email, password);
+    if (response['success'] != true) {
+      throw Exception(response['message'] ?? 'Login admin gagal');
+    }
 
-    // Validasi role
-    if (response['role'] != 'superAdmin' && response['role'] != 'admin') {
+    final data = Map<String, dynamic>.from(response['data'] ?? {});
+    // SECURITY: never trust a client-side role; require the backend claim.
+    final role = data['role'];
+    if (role != 'superAdmin' && role != 'admin') {
       throw Exception('Anda bukan admin');
     }
 
-    return response;
+    return data;
   }
 
   static bool isStrongPassword(String password) {

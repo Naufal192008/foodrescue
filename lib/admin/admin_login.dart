@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
 import 'admin_layout.dart';
 import 'services/admin_auth_service.dart';
+import '../utils/security_utils.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -77,10 +78,18 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                               fontSize: 16,
                               letterSpacing: 4)),
                       const SizedBox(height: 40),
-                      const _FeatureRow(icon: Icons.analytics_rounded, text: 'Real-time Analytics'),
-                      const _FeatureRow(icon: Icons.shield_rounded, text: 'Keamanan Berlapis'),
-                      const _FeatureRow(icon: Icons.people_alt_rounded, text: 'Full Control Users & Stores'),
-                      const _FeatureRow(icon: Icons.receipt_long_rounded, text: 'Laporan & Export Lengkap'),
+                      const _FeatureRow(
+                          icon: Icons.analytics_rounded,
+                          text: 'Real-time Analytics'),
+                      const _FeatureRow(
+                          icon: Icons.shield_rounded,
+                          text: 'Keamanan Berlapis'),
+                      const _FeatureRow(
+                          icon: Icons.people_alt_rounded,
+                          text: 'Full Control Users & Stores'),
+                      const _FeatureRow(
+                          icon: Icons.receipt_long_rounded,
+                          text: 'Laporan & Export Lengkap'),
                     ],
                   ),
                 ),
@@ -105,15 +114,18 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: const Icon(Icons.admin_panel_settings_rounded,
-                                color: Colors.white, size: 32),
+                            child: const Icon(
+                                Icons.admin_panel_settings_rounded,
+                                color: Colors.white,
+                                size: 32),
                           ),
                           const SizedBox(height: 24),
                           const Text('Selamat Datang, Admin',
                               style: TextStyle(
                                   fontSize: 28, fontWeight: FontWeight.w900)),
                           const SizedBox(height: 6),
-                          const Text('Masuk untuk mengelola platform FoodRescue',
+                          const Text(
+                              'Masuk untuk mengelola platform FoodRescue',
                               style: TextStyle(color: AppColors.mutedText)),
                           const SizedBox(height: 32),
                           TextFormField(
@@ -123,10 +135,10 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                               prefixIcon: Icon(Icons.email_outlined),
                               border: OutlineInputBorder(),
                             ),
-                            validator: (v) =>
-                                v == null || !v.contains('@')
-                                    ? 'Email tidak valid'
-                                    : null,
+                            validator: (v) => v == null ||
+                                    !SecurityUtils.isValidEmail(v.trim())
+                                ? 'Email tidak valid'
+                                : null,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
@@ -153,7 +165,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                             child: FilledButton(
                               onPressed: _loading ? null : _login,
                               style: FilledButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                                 backgroundColor: AppColors.primary,
                               ),
                               child: _loading
@@ -167,25 +180,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                                           fontWeight: FontWeight.w800,
                                           letterSpacing: 1)),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFF3E0),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Row(children: [
-                              Icon(Icons.info_outline,
-                                  color: Colors.orange, size: 18),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Demo: admin@foodrescue.id / Admin@2024!',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ),
-                            ]),
                           ),
                         ],
                       ),
@@ -216,7 +210,9 @@ class _FeatureRow extends StatelessWidget {
             const SizedBox(width: 12),
             Text(text,
                 style: const TextStyle(
-                    color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600)),
           ],
         ),
       );

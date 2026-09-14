@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/product_model.dart';
+import '../admin/services/admin_data_service.dart';
 import '../providers/cart_provider.dart';
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
@@ -19,7 +20,6 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   final _searchController = TextEditingController();
   String _selectedFilter = 'Semua';
-  List<Product> _products = [];
   bool _isLoading = true;
 
   @override
@@ -33,7 +33,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
     final data = await ApiService.getFoods();
     if (mounted) {
       setState(() {
-        _products = data.map((e) => Product.fromJson(e)).toList();
+        if (data.isNotEmpty) {
+          AdminDataService().replaceProducts(
+            data.map((e) => Product.fromJson(e)),
+          );
+        }
         _isLoading = false;
       });
     }
@@ -45,9 +49,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
     super.dispose();
   }
 
-  List<Product> get _filteredProducts {
+  List<Product> _filteredProducts(List<Product> products) {
     final query = _searchController.text.toLowerCase();
-    return _products.where((product) {
+    return products.where((product) {
       final matchesSearch = product.name.toLowerCase().contains(query) ||
           product.storeName.toLowerCase().contains(query);
       final matchesFilter = switch (_selectedFilter) {
@@ -66,6 +70,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final catalog = context.watch<AdminDataService>();
+    final filteredProducts = _filteredProducts(catalog.products);
     return Scaffold(
       body: ListView(
         padding: EdgeInsets.zero,
@@ -185,7 +191,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           .textTheme
                           .titleMedium
                           ?.copyWith(fontWeight: FontWeight.w800)),
-                  Text('${_filteredProducts.length} box',
+                  Text('${filteredProducts.length} box',
                       style: const TextStyle(color: AppColors.mutedText))
                 ]),
           ),
@@ -198,7 +204,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       child: CircularProgressIndicator(),
                     ),
                   )
-                : _filteredProducts.isEmpty
+                : filteredProducts.isEmpty
                     ? const Center(
                         child: Padding(
                           padding: EdgeInsets.all(32),
@@ -209,12 +215,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         ),
                       )
                     : Column(
-                        children: _filteredProducts
+                        children: filteredProducts
                             .map((product) => ProductCard(
                                 product: product,
                                 onTap: () => _openDetail(product),
                                 onSave: () {
-                                  context.read<CartProvider>().addToCart(product);
+                                  context
+                                      .read<CartProvider>()
+                                      .addToCart(product);
                                   _openDetail(product);
                                 }))
                             .toList()),

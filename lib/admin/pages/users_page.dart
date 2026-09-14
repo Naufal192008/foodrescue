@@ -87,22 +87,20 @@ class _UsersPageState extends State<UsersPage> {
     );
   }
 
-  Widget _header(AdminProvider p) => Row(
-        children: [
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Manajemen Pengguna',
-                    style:
-                        TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
-                SizedBox(height: 4),
-                Text('Kelola semua pengguna platform FoodRescue',
-                    style: TextStyle(color: AppColors.mutedText)),
-              ],
-            ),
-          ),
-          FilledButton.icon(
+  Widget _header(AdminProvider p) => LayoutBuilder(
+        builder: (context, constraints) {
+          final narrow = constraints.maxWidth < 620;
+          final title = const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Manajemen Pengguna',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+              SizedBox(height: 4),
+              Text('Kelola semua pengguna platform FoodRescue',
+                  style: TextStyle(color: AppColors.mutedText)),
+            ],
+          );
+          final action = FilledButton.icon(
             onPressed: () => _showUserForm(),
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.primary,
@@ -111,46 +109,71 @@ class _UsersPageState extends State<UsersPage> {
             icon: const Icon(Icons.person_add_rounded),
             label: const Text('Tambah Pengguna',
                 style: TextStyle(fontWeight: FontWeight.w800)),
-          ),
-        ],
+          );
+          return narrow
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                      title,
+                      const SizedBox(height: 12),
+                      action,
+                    ])
+              : Row(children: [Expanded(child: title), action]);
+        },
       );
 
-  Widget _filters() => Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _searchCtrl,
-              onChanged: (_) => setState(() => _page = 0),
-              decoration: InputDecoration(
-                hintText: 'Cari nama, email, atau telepon...',
-                prefixIcon: const Icon(Icons.search_rounded),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE2E8E3))),
-              ),
+  Widget _filters() => LayoutBuilder(
+        builder: (context, constraints) {
+          final narrow = constraints.maxWidth < 700;
+          final searchField = TextField(
+            controller: _searchCtrl,
+            onChanged: (_) => setState(() => _page = 0),
+            decoration: InputDecoration(
+              hintText: 'Cari nama, email, atau telepon...',
+              prefixIcon: const Icon(Icons.search_rounded),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE2E8E3))),
             ),
-          ),
-          const SizedBox(width: 12),
-          _dropdown(
-              'Role',
-              _roleFilter,
-              ['Semua', 'admin', 'superAdmin', 'storeOwner', 'customer'],
-              (v) => setState(() {
-                    _roleFilter = v!;
-                    _page = 0;
-                  })),
-          const SizedBox(width: 12),
-          _dropdown(
-              'Status',
-              _statusFilter,
-              ['Semua', 'active', 'suspended', 'banned'],
-              (v) => setState(() {
-                    _statusFilter = v!;
-                    _page = 0;
-                  })),
-        ],
+          );
+          final filters = [
+            _dropdown(
+                'Role',
+                _roleFilter,
+                ['Semua', 'admin', 'superAdmin', 'storeOwner', 'customer'],
+                (v) => setState(() {
+                      _roleFilter = v!;
+                      _page = 0;
+                    })),
+            _dropdown(
+                'Status',
+                _statusFilter,
+                ['Semua', 'active', 'suspended', 'banned'],
+                (v) => setState(() {
+                      _statusFilter = v!;
+                      _page = 0;
+                    })),
+          ];
+          return narrow
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                      searchField,
+                      const SizedBox(height: 10),
+                      Row(children: [
+                        Expanded(child: filters[0]),
+                        const SizedBox(width: 10),
+                        Expanded(child: filters[1])
+                      ]),
+                    ])
+              : Row(children: [
+                  Expanded(child: searchField),
+                  const SizedBox(width: 12),
+                  ...filters
+                ]);
+        },
       );
 
   Widget _dropdown(String label, String value, List<String> items,
@@ -252,6 +275,7 @@ class _UsersPageState extends State<UsersPage> {
                   },
                 ),
                 _iconBtn(Icons.delete_rounded, AppColors.danger, () async {
+                  final provider = context.read<AdminProvider>();
                   final ok = await ConfirmDialog.show(
                     context,
                     title: 'Hapus Pengguna?',
@@ -260,8 +284,8 @@ class _UsersPageState extends State<UsersPage> {
                     confirmLabel: 'Hapus',
                     danger: true,
                   );
-                  if (ok && context.mounted) {
-                    context.read<AdminProvider>().deleteUser(u.id);
+                  if (ok) {
+                    provider.deleteUser(u.id);
                   }
                 }),
               ]),

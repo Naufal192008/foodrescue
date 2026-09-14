@@ -10,7 +10,8 @@ import '../providers/admin_provider.dart';
 class ReportsPage extends StatelessWidget {
   const ReportsPage({super.key});
 
-  Future<void> _exportCsv(BuildContext context, String filename, List<List<String>> rows) async {
+  Future<void> _exportCsv(
+      BuildContext context, String filename, List<List<String>> rows) async {
     final buffer = StringBuffer();
     for (final row in rows) {
       buffer.writeln(row.map((e) => '"${e.replaceAll('"', '""')}"').join(','));
@@ -25,7 +26,8 @@ class ReportsPage extends StatelessWidget {
     );
   }
 
-  Future<void> _exportJson(BuildContext context, String filename, List<Map<String, dynamic>> data) async {
+  Future<void> _exportJson(BuildContext context, String filename,
+      List<Map<String, dynamic>> data) async {
     final txt = const JsonEncoder.withIndent('  ').convert(data);
     await Clipboard.setData(ClipboardData(text: txt));
     if (!context.mounted) return;
@@ -62,14 +64,20 @@ class ReportsPage extends StatelessWidget {
               const Text('Ringkasan Bisnis',
                   style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
               const SizedBox(height: 16),
-              Row(children: [
-                _summary('Total Revenue',
-                    'Rp ${NumberFormat('#,###', 'id_ID').format(p.totalRevenue)}',
-                    AppColors.primary),
-                _summary('Total Orders', '${p.orders.length}', Colors.blue),
-                _summary('Total Users', '${p.users.length}', Colors.purple),
-                _summary('Total Stores', '${p.stores.length}', AppColors.secondary),
-              ]),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _summary(
+                      'Total Revenue',
+                      'Rp ${NumberFormat('#,###', 'id_ID').format(p.totalRevenue)}',
+                      AppColors.primary),
+                  _summary('Total Orders', '${p.orders.length}', Colors.blue),
+                  _summary('Total Users', '${p.users.length}', Colors.purple),
+                  _summary('Total Stores', '${p.stores.length}',
+                      AppColors.secondary),
+                ],
+              ),
             ],
           ),
         ),
@@ -94,7 +102,15 @@ class ReportsPage extends StatelessWidget {
                 context,
                 'orders.csv',
                 [
-                  ['Kode', 'Customer', 'Toko', 'Produk', 'Total', 'Status', 'Tanggal'],
+                  [
+                    'Kode',
+                    'Customer',
+                    'Toko',
+                    'Produk',
+                    'Total',
+                    'Status',
+                    'Tanggal'
+                  ],
                   ...p.orders.map((o) => [
                         o.code,
                         o.customerName,
@@ -116,7 +132,16 @@ class ReportsPage extends StatelessWidget {
                 context,
                 'users.csv',
                 [
-                  ['ID', 'Nama', 'Email', 'Telepon', 'Role', 'Status', 'Total Order', 'Total Spent'],
+                  [
+                    'ID',
+                    'Nama',
+                    'Email',
+                    'Telepon',
+                    'Role',
+                    'Status',
+                    'Total Order',
+                    'Total Spent'
+                  ],
                   ...p.users.map((u) => [
                         u.id,
                         u.name,
@@ -139,7 +164,17 @@ class ReportsPage extends StatelessWidget {
                 context,
                 'stores.csv',
                 [
-                  ['ID', 'Nama', 'Owner', 'Email', 'Rating', 'Sales', 'Products', 'Verified', 'Active'],
+                  [
+                    'ID',
+                    'Nama',
+                    'Owner',
+                    'Email',
+                    'Rating',
+                    'Sales',
+                    'Products',
+                    'Verified',
+                    'Active'
+                  ],
                   ...p.stores.map((s) => [
                         s.id,
                         s.name,
@@ -229,9 +264,7 @@ class ReportsPage extends StatelessWidget {
               const SizedBox(height: 6),
               Text(value,
                   style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18)),
+                      color: color, fontWeight: FontWeight.w900, fontSize: 18)),
             ],
           ),
         ),

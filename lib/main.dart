@@ -6,11 +6,14 @@ import 'package:provider/provider.dart';
 
 import 'providers/cart_provider.dart';
 import 'providers/like_provider.dart';
+import 'admin/services/admin_data_service.dart';
 import 'screens/splash_screen.dart';
 import 'utils/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // SECURITY: runtime configuration is loaded from the ignored .env file;
+  // never commit production URLs, credentials, or signing keys.
   await dotenv.load(fileName: ".env");
   runApp(const FoodRescueApp());
 }
@@ -40,6 +43,7 @@ class FoodRescueApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(value: AdminDataService()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => LikeProvider()),
       ],

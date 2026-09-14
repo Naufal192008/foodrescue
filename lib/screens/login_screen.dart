@@ -1,6 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
+import '../admin/admin_layout.dart';
+import '../admin/models/admin_user.dart';
+import '../admin/services/admin_data_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/security_utils.dart';
 import 'main_navigation.dart';
@@ -42,9 +46,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final username = _usernameController.text.trim().toLowerCase();
     final password = _passwordController.text;
 
-    // Cek dulu di DemoAccounts (lokal)
-    final demoAccount = DemoAccounts.accounts[username];
+    // SECURITY: local accounts are debug fixtures only and never an admin path.
+    final demoAccount = kDebugMode ? DemoAccounts.accounts[username] : null;
     final isValidLocal = demoAccount != null &&
+        demoAccount['role'] == 'user' &&
         SecurityUtils.verifyPassword(password, demoAccount['password']!);
 
     if (!mounted) return;
@@ -55,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder: (_) => demoAccount['role'] == 'admin'
-              ? const AdminDashboardScreen()
+              ? const AdminLayout()
               : MainNavigation(
                   username: username,
                   name: demoAccount['name']!,
@@ -81,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder: (_) => role == 'admin'
-              ? const AdminDashboardScreen()
+              ? const AdminLayout()
               : MainNavigation(
                   username: username,
                   name: name,
@@ -91,7 +96,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Username atau password salah.')),
+        SnackBar(
+            content:
+                Text(result['message'] ?? 'Username atau password salah.')),
       );
     }
   }
@@ -195,12 +202,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       label: const Text('Daftar sebagai user'),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'Akun demo: user / user123 atau admin / admin123',
-                      textAlign: TextAlign.center,
-                      style:
-                          TextStyle(color: AppColors.mutedText, fontSize: 12),
-                    ),
                   ],
                 ),
               ),
@@ -220,12 +221,6 @@ class DemoAccounts {
       'name': 'Budi Santoso',
       'email': 'budi.santoso@email.com',
     },
-    'admin': {
-      'password': SecurityUtils.hashPassword('admin123'),
-      'role': 'admin',
-      'name': 'Admin FoodRescue',
-      'email': 'admin@foodrescue.com',
-    },
   };
 
   static bool contains(String username) => accounts.containsKey(username);
@@ -242,6 +237,15 @@ class DemoAccounts {
       'name': name,
       'email': email,
     };
+    AdminDataService().addUser(AdminUser(
+      id: 'U${DateTime.now().millisecondsSinceEpoch}',
+      name: name,
+      email: email,
+      phone: '-',
+      role: UserRole.customer,
+      status: UserStatus.active,
+      joinedAt: DateTime.now(),
+    ));
   }
 
   static void updateProfile({

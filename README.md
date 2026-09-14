@@ -1,20 +1,14 @@
-<<<<<<< HEAD
-# foodrescue
+# FoodRescue
 
-A new Flutter project.
+Flutter application for rescuing surplus food, with a responsive admin panel.
 
-## Getting Started
+## Run locally
 
-This project is a starting point for a Flutter application.
+1. Copy `.env.example` to `.env`.
+2. Set `API_BASE_URL` to an HTTPS backend URL.
+3. Run `flutter pub get`.
+4. Run `flutter run`.
 
-A few resources to get you started if this is your first Flutter project:
+The local demo account and local registration are available only in debug builds. Production authentication must use the backend.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
-# foodrescure
->>>>>>> aab0883cf42f6cf61e5ca53eebf24e82fc75284a
+See [SECURITY.md](SECURITY.md) for the implemented controls and the OWASP Top 10 checklist.
