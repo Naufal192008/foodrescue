@@ -38,58 +38,52 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-<<<<<<< HEAD
-    await Future<void>.delayed(const Duration(milliseconds: 350));
 
     final username = _usernameController.text.trim().toLowerCase();
-    final account = DemoAccounts.accounts[username];
-
-    // Verifikasi password menggunakan hash
-    final isValid = account != null &&
-        SecurityUtils.verifyPassword(
-            _passwordController.text, account['password']!);
-=======
-
-    final input = _usernameController.text.trim();
     final password = _passwordController.text;
 
-    final demoAccount = DemoAccounts.accounts[input.toLowerCase()];
+    // Cek dulu di DemoAccounts (lokal)
+    final demoAccount = DemoAccounts.accounts[username];
+    final isValidLocal = demoAccount != null &&
+        SecurityUtils.verifyPassword(password, demoAccount['password']!);
 
-    Map<String, dynamic> result;
-    if (demoAccount != null && demoAccount['password'] == password) {
-      result = {
-        'success': true,
-        'data': {
-          'role': demoAccount['role'],
-          'name': demoAccount['name'],
-          'email': demoAccount['email'],
-        }
-      };
-    } else {
-      result = await ApiService.login(input, password);
+    if (!mounted) return;
+
+    if (isValidLocal) {
+      // Login berhasil via akun demo lokal
+      setState(() => _isLoading = false);
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => demoAccount['role'] == 'admin'
+              ? const AdminDashboardScreen()
+              : MainNavigation(
+                  username: username,
+                  name: demoAccount['name']!,
+                  email: demoAccount['email']!,
+                ),
+        ),
+      );
+      return;
     }
->>>>>>> 8e12a9f9ec6abf94a5e703b3a39ba5c0400d9447
+
+    // Fallback: coba login via API server
+    final result = await ApiService.login(username, password);
 
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-<<<<<<< HEAD
-    if (!isValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Username atau password salah.')),
-=======
     if (result['success'] == true) {
       final data = result['data'] ?? {};
       final role = data['role'] ?? 'user';
-      final name = data['name'] ?? input;
-      final email = data['email'] ?? input;
+      final name = data['name'] ?? username;
+      final email = data['email'] ?? username;
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder: (_) => role == 'admin'
               ? const AdminDashboardScreen()
               : MainNavigation(
-                  username: input,
+                  username: username,
                   name: name,
                   email: email,
                 ),
@@ -97,25 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Login gagal.')),
->>>>>>> 8e12a9f9ec6abf94a5e703b3a39ba5c0400d9447
+        SnackBar(content: Text(result['message'] ?? 'Username atau password salah.')),
       );
     }
-<<<<<<< HEAD
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(
-        builder: (_) => account['role'] == 'admin'
-            ? const AdminDashboardScreen()
-            : MainNavigation(
-                username: username,
-                name: account['name']!,
-                email: account['email']!,
-              ),
-      ),
-    );
-=======
->>>>>>> 8e12a9f9ec6abf94a5e703b3a39ba5c0400d9447
   }
 
   @override
