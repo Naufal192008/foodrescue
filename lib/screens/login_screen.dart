@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import 'main_navigation.dart';
 import 'register_screen.dart';
@@ -36,30 +37,51 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-    await Future<void>.delayed(const Duration(milliseconds: 350));
-    final username = _usernameController.text.trim().toLowerCase();
-    final account = DemoAccounts.accounts[username];
-    final isValid =
-        account != null && account['password'] == _passwordController.text;
+
+    final input = _usernameController.text.trim();
+    final password = _passwordController.text;
+
+    final demoAccount = DemoAccounts.accounts[input.toLowerCase()];
+
+    Map<String, dynamic> result;
+    if (demoAccount != null && demoAccount['password'] == password) {
+      result = {
+        'success': true,
+        'data': {
+          'role': demoAccount['role'],
+          'name': demoAccount['name'],
+          'email': demoAccount['email'],
+        }
+      };
+    } else {
+      result = await ApiService.login(input, password);
+    }
+
     if (!mounted) return;
     setState(() => _isLoading = false);
-    if (!isValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Username atau password salah.')),
+
+    if (result['success'] == true) {
+      final data = result['data'] ?? {};
+      final role = data['role'] ?? 'user';
+      final name = data['name'] ?? input;
+      final email = data['email'] ?? input;
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => role == 'admin'
+              ? const AdminDashboardScreen()
+              : MainNavigation(
+                  username: input,
+                  name: name,
+                  email: email,
+                ),
+        ),
       );
-      return;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? 'Login gagal.')),
+      );
     }
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(
-        builder: (_) => account['role'] == 'admin'
-            ? const AdminDashboardScreen()
-            : MainNavigation(
-                username: username,
-                name: account['name']!,
-                email: account['email']!,
-              ),
-      ),
-    );
   }
 
   @override

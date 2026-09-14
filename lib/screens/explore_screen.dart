@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/product_model.dart';
 import '../providers/cart_provider.dart';
+import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import '../widgets/countdown_timer.dart';
 import '../widgets/product_card.dart';
@@ -18,56 +19,25 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   final _searchController = TextEditingController();
   String _selectedFilter = 'Semua';
+  List<Product> _products = [];
+  bool _isLoading = true;
 
-  late final List<Product> _products = [
-    Product(
-        id: 'box-001',
-        name: 'Surprise Box Roti & Pastry',
-        storeName: 'Kopi Senja',
-        distance: 0.8,
-        originalPrice: 75000,
-        discountPrice: 25000,
-        imageUrl:
-            'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600',
-        stock: 5,
-        pickupStart: DateTime.now().add(const Duration(minutes: 45)),
-        pickupEnd: DateTime.now().add(const Duration(hours: 2)),
-        rating: 4.8,
-        description:
-            'Kombinasi roti dan pastry pilihan yang masih sangat lezat untuk dinikmati hari ini.',
-        itemsInBag: ['Croissant butter', 'Roti cokelat', 'Donat gula']),
-    Product(
-        id: 'box-002',
-        name: 'Paket Nasi Ayam Hemat',
-        storeName: 'Dapur Ibu Rina',
-        distance: 1.2,
-        originalPrice: 55000,
-        discountPrice: 18000,
-        imageUrl:
-            'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600',
-        stock: 8,
-        pickupStart: DateTime.now().add(const Duration(hours: 1)),
-        pickupEnd: DateTime.now().add(const Duration(hours: 3)),
-        rating: 4.6,
-        description:
-            'Menu rumahan hangat yang dibuat segar dan siap menjadi makan malam praktis.',
-        itemsInBag: ['Nasi putih', 'Ayam bumbu', 'Tumis sayur']),
-    Product(
-        id: 'box-003',
-        name: 'Fruit Bowl Segar',
-        storeName: 'Green Market',
-        distance: 1.8,
-        originalPrice: 45000,
-        discountPrice: 15000,
-        imageUrl:
-            'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=600',
-        stock: 3,
-        pickupStart: DateTime.now().add(const Duration(minutes: 30)),
-        pickupEnd: DateTime.now().add(const Duration(hours: 2, minutes: 30)),
-        rating: 4.9,
-        description: 'Buah potong segar dengan pilihan musiman dari toko lokal.',
-        itemsInBag: ['Melon', 'Semangka', 'Pepaya']),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchProducts();
+  }
+
+  Future<void> _fetchProducts() async {
+    setState(() => _isLoading = true);
+    final data = await ApiService.getFoods();
+    if (mounted) {
+      setState(() {
+        _products = data.map((e) => Product.fromJson(e)).toList();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -221,16 +191,33 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-                children: _filteredProducts
-                    .map((product) => ProductCard(
-                        product: product,
-                        onTap: () => _openDetail(product),
-                        onSave: () {
-                          context.read<CartProvider>().addToCart(product);
-                          _openDetail(product);
-                        }))
-                    .toList()),
+            child: _isLoading
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : _filteredProducts.isEmpty
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32),
+                          child: Text(
+                            'Tidak ada makanan tersedia',
+                            style: TextStyle(color: AppColors.mutedText),
+                          ),
+                        ),
+                      )
+                    : Column(
+                        children: _filteredProducts
+                            .map((product) => ProductCard(
+                                product: product,
+                                onTap: () => _openDetail(product),
+                                onSave: () {
+                                  context.read<CartProvider>().addToCart(product);
+                                  _openDetail(product);
+                                }))
+                            .toList()),
           ),
           const SizedBox(height: 12),
         ],
