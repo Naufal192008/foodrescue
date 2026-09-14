@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
+import '../utils/security_utils.dart';
 import 'main_navigation.dart';
 import 'register_screen.dart';
 
@@ -37,18 +38,25 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     await Future<void>.delayed(const Duration(milliseconds: 350));
+
     final username = _usernameController.text.trim().toLowerCase();
     final account = DemoAccounts.accounts[username];
-    final isValid =
-        account != null && account['password'] == _passwordController.text;
+
+    // Verifikasi password menggunakan hash
+    final isValid = account != null &&
+        SecurityUtils.verifyPassword(
+            _passwordController.text, account['password']!);
+
     if (!mounted) return;
     setState(() => _isLoading = false);
+
     if (!isValid) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Username atau password salah.')),
       );
       return;
     }
+
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
         builder: (_) => account['role'] == 'admin'
@@ -82,10 +90,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       'Selamat datang di FoodRescue',
                       textAlign: TextAlign.center,
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -177,13 +185,13 @@ class _LoginScreenState extends State<LoginScreen> {
 class DemoAccounts {
   static final accounts = <String, Map<String, String>>{
     'user': {
-      'password': 'user123',
+      'password': SecurityUtils.hashPassword('user123'),
       'role': 'user',
       'name': 'Budi Santoso',
       'email': 'budi.santoso@email.com',
     },
     'admin': {
-      'password': 'admin123',
+      'password': SecurityUtils.hashPassword('admin123'),
       'role': 'admin',
       'name': 'Admin FoodRescue',
       'email': 'admin@foodrescue.com',
@@ -199,7 +207,7 @@ class DemoAccounts {
     required String email,
   }) {
     accounts[username] = {
-      'password': password,
+      'password': SecurityUtils.hashPassword(password),
       'role': 'user',
       'name': name,
       'email': email,

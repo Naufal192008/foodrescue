@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../utils/app_colors.dart';
 import 'pages/analytics_page.dart';
 import 'pages/dashboard_page.dart';
 import 'pages/logs_page.dart';
@@ -51,20 +50,36 @@ class _AdminLayoutState extends State<AdminLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = MediaQuery.sizeOf(context).width < 900;
+
     return ChangeNotifierProvider(
       create: (_) => AdminProvider(),
       child: Scaffold(
         backgroundColor: const Color(0xFFF1F5F9),
+        drawer: isCompact
+            ? AdminSidebar(
+                selectedIndex: _selectedIndex,
+              forceExpanded: true,
+                onSelect: (i) {
+                  setState(() => _selectedIndex = i);
+                  Navigator.of(context).pop();
+                },
+              )
+            : null,
         body: Row(
           children: [
-            AdminSidebar(
-              selectedIndex: _selectedIndex,
-              onSelect: (i) => setState(() => _selectedIndex = i),
-            ),
+            if (!isCompact)
+              AdminSidebar(
+                selectedIndex: _selectedIndex,
+                onSelect: (i) => setState(() => _selectedIndex = i),
+              ),
             Expanded(
               child: Column(
                 children: [
-                  AdminTopbar(title: _titles[_selectedIndex]),
+                  AdminTopbar(
+                    title: _titles[_selectedIndex],
+                    onMenu: isCompact ? () => Scaffold.of(context).openDrawer() : null,
+                  ),
                   Expanded(
                     child: IndexedStack(
                       index: _selectedIndex,

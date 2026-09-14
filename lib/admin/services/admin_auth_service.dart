@@ -1,18 +1,17 @@
-class AdminAuthService {
-  static const _adminEmail = 'admin@foodrescue.id';
+import '../../services/api_service.dart';
 
+class AdminAuthService {
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
-    await Future.delayed(const Duration(milliseconds: 700));
-    if (email != _adminEmail || password != 'Admin@2024!') {
-      throw Exception('Email atau password salah');
+    // Panggil mock API (menggunakan .env untuk kredensial)
+    final response = await ApiService.login(email, password);
+
+    // Validasi role
+    if (response['role'] != 'superAdmin' && response['role'] != 'admin') {
+      throw Exception('Anda bukan admin');
     }
-    return {
-      'email': email,
-      'name': 'Super Admin',
-      'role': 'superAdmin',
-      'token': 'token_${DateTime.now().millisecondsSinceEpoch}',
-    };
+
+    return response;
   }
 
   static bool isStrongPassword(String password) {

@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -8,7 +10,9 @@ import 'providers/like_provider.dart';
 import 'screens/main_navigation.dart';
 import 'utils/app_colors.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(const FoodRescueApp());
 }
 
@@ -25,6 +29,15 @@ class FoodRescueApp extends StatelessWidget {
       colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
       scaffoldBackgroundColor: AppColors.background,
     );
+
+    // Security: Matikan debug info di production
+    if (kReleaseMode) {
+      ErrorWidget.builder = (FlutterErrorDetails details) {
+        return const Center(
+          child: Text('Terjadi kesalahan. Silakan coba lagi.'),
+        );
+      };
+    }
 
     return MultiProvider(
       providers: [

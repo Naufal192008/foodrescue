@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
+import '../utils/security_utils.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {

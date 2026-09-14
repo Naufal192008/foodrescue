@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
 
 class AdminSidebar extends StatelessWidget {
-  const AdminSidebar({super.key, required this.selectedIndex, required this.onSelect});
+  const AdminSidebar({super.key, required this.selectedIndex, required this.onSelect, this.forceExpanded = false});
   final int selectedIndex;
   final ValueChanged<int> onSelect;
+  final bool forceExpanded;
 
   static const _items = [
     (Icons.dashboard_rounded, 'Dashboard'),
@@ -20,7 +21,7 @@ class AdminSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wide = MediaQuery.of(context).size.width > 1100;
+    final wide = forceExpanded || MediaQuery.sizeOf(context).width > 1100;
     final w = wide ? 260.0 : 76.0;
     return Container(
       width: w,
