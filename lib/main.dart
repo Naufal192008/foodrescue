@@ -12,7 +12,11 @@ import 'utils/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Bypass .env error: $e");
+  }
   runApp(const FoodRescueApp());
 }
 
