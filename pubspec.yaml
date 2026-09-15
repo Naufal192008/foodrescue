@@ -35,5 +35,5 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
   assets:
-    - .env
+    - assets/.env
     - assets/logo.jpeg
