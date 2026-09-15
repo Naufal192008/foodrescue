@@ -49,4 +49,7 @@ app.*.map.json
 # ========================================
 .env
 .env.local
-.env.*.local
+.env.*.localflutter_react_6_topik/
+build/
+.dart_tool/
+.env
