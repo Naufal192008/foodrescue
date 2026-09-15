@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
 import 'login_screen.dart';
+import 'user_tools_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
@@ -268,7 +269,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.account_balance_wallet_outlined,
               title: 'Metode Pembayaran',
               subtitle: 'GoPay, OVO, ShopeePay, QRIS',
-              onTap: () => _showMessage('Pengaturan pembayaran dibuka')),
+              onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const PaymentMethodsScreen(),
+                    ),
+                  )),
           const SizedBox(height: 18),
 
           Text(
@@ -396,8 +401,7 @@ class _ProfileTile extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         leading: Icon(icon, color: AppColors.primary),
-        title:
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle: Text(subtitle),
         trailing: const Icon(Icons.chevron_right_rounded),
       ),

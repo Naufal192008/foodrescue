@@ -26,6 +26,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('Jelajah'), findsAtLeastNWidgets(1));
+    expect(find.text('Pesanan'), findsAtLeastNWidgets(1));
+    expect(find.text('Toko Saya'), findsAtLeastNWidgets(1));
+    expect(find.text('Komunitas'), findsAtLeastNWidgets(1));
     expect(find.text('Penyelamatan Kilat Hari Ini!'), findsOneWidget);
   });
 }

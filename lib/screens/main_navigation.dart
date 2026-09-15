@@ -5,9 +5,11 @@ import '../models/product_model.dart';
 import '../providers/cart_provider.dart';
 import '../providers/like_provider.dart';
 import '../utils/app_colors.dart';
+import 'community_screen.dart';
 import 'explore_screen.dart';
 import 'home_screen.dart';
 import 'profile_screen.dart';
+import 'store_screen.dart';
 import 'ticket_screen.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -44,6 +46,8 @@ class _MainNavigationState extends State<MainNavigation> {
           setState(() => _currentIndex = 1);
         },
       ),
+      const StoreScreen(),
+      const CommunityScreen(),
       ProfileScreen(
         username: widget.username,
         name: widget.name,
@@ -67,9 +71,9 @@ class _MainNavigationState extends State<MainNavigation> {
             label: 'Jelajah',
           ),
           NavigationDestination(
-            icon: Icon(Icons.confirmation_num_outlined),
-            selectedIcon: Icon(Icons.confirmation_num_rounded),
-            label: 'Tiket Saya',
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long_rounded),
+            label: 'Pesanan',
           ),
           NavigationDestination(
             icon: Icon(Icons.eco_outlined),
@@ -77,9 +81,19 @@ class _MainNavigationState extends State<MainNavigation> {
             label: 'Dampak',
           ),
           NavigationDestination(
+            icon: Icon(Icons.storefront_outlined),
+            selectedIcon: Icon(Icons.storefront_rounded),
+            label: 'Toko Saya',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.groups_outlined),
+            selectedIcon: Icon(Icons.groups_rounded),
+            label: 'Komunitas',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.person_outline_rounded),
             selectedIcon: Icon(Icons.person_rounded),
-            label: 'Profil',
+            label: 'Profile',
           ),
         ],
       ),
@@ -253,7 +267,11 @@ class _TicketList extends StatelessWidget {
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => TicketScreen(product: product),
+                      builder: (_) => TicketScreen(
+                        product: product,
+                        address: 'Alamat belum tersimpan',
+                        paymentMethod: 'GoPay',
+                      ),
                     ),
                   ),
                 ),

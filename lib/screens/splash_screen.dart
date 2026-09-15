@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../admin/admin_login.dart';
 import '../utils/app_colors.dart';
-import 'role_selection_screen.dart';
+import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key, required this.isAdmin});
@@ -34,9 +34,8 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
-        builder: (_) => widget.isAdmin
-            ? const AdminLoginScreen()
-            : const RoleSelectionScreen(),
+        builder: (_) =>
+            widget.isAdmin ? const AdminLoginScreen() : const LoginScreen(),
       ),
     );
   }

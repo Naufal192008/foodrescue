@@ -35,13 +35,13 @@ class Product {
 
   int get savings => originalPrice - discountPrice;
 
-  Product copyWith({int? stock, int? likes}) => Product(
+  Product copyWith({int? stock, int? likes, int? discountPrice}) => Product(
         id: id,
         name: name,
         storeName: storeName,
         distance: distance,
         originalPrice: originalPrice,
-        discountPrice: discountPrice,
+        discountPrice: discountPrice ?? this.discountPrice,
         imageUrl: imageUrl,
         stock: stock ?? this.stock,
         pickupStart: pickupStart,

@@ -81,18 +81,19 @@ class AdminDataService extends ChangeNotifier {
   final List<Product> products = [
     Product(
       id: 'P001',
-      name: 'Surprise Box Roti & Pastry',
-      storeName: 'Kopi Senja',
+      name: 'Sourdough Loaf & Almond Croissant',
+      storeName: 'Beau Bakery · Menteng',
       distance: 1.2,
-      originalPrice: 50000,
-      discountPrice: 25000,
-      imageUrl: '',
-      stock: 5,
+      originalPrice: 120000,
+      discountPrice: 42000,
+      imageUrl:
+          'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=900',
+      stock: 3,
       pickupStart: DateTime(2024, 1, 1, 16),
       pickupEnd: DateTime(2024, 1, 1, 20),
       rating: 4.8,
-      description: 'Roti dan pastry pilihan hari ini.',
-      itemsInBag: ['Roti', 'Pastry'],
+      description: 'Sourdough loaf dan almond croissant pilihan hari ini.',
+      itemsInBag: ['Sourdough loaf', 'Almond croissant'],
       category: 'Bakery',
     ),
     Product(
@@ -102,7 +103,8 @@ class AdminDataService extends ChangeNotifier {
       distance: 2.1,
       originalPrice: 36000,
       discountPrice: 18000,
-      imageUrl: '',
+      imageUrl:
+          'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=900',
       stock: 8,
       pickupStart: DateTime(2024, 1, 1, 17),
       pickupEnd: DateTime(2024, 1, 1, 20),
@@ -118,7 +120,8 @@ class AdminDataService extends ChangeNotifier {
       distance: 1.8,
       originalPrice: 30000,
       discountPrice: 15000,
-      imageUrl: '',
+      imageUrl:
+          'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=900',
       stock: 3,
       pickupStart: DateTime(2024, 1, 1, 15),
       pickupEnd: DateTime(2024, 1, 1, 19),
@@ -134,7 +137,8 @@ class AdminDataService extends ChangeNotifier {
       distance: 1.2,
       originalPrice: 36000,
       discountPrice: 18000,
-      imageUrl: '',
+      imageUrl:
+          'https://images.unsplash.com/photo-1547592180-85f173990554?w=900',
       stock: 8,
       pickupStart: DateTime(2024, 1, 1, 7),
       pickupEnd: DateTime(2024, 1, 1, 11),
@@ -150,7 +154,8 @@ class AdminDataService extends ChangeNotifier {
       distance: 3.0,
       originalPrice: 24000,
       discountPrice: 12000,
-      imageUrl: '',
+      imageUrl:
+          'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=900',
       stock: 0,
       pickupStart: DateTime(2024, 1, 1, 16),
       pickupEnd: DateTime(2024, 1, 1, 19),

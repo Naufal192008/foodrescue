@@ -12,8 +12,6 @@ import 'utils/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // SECURITY: runtime configuration is loaded from the ignored .env file;
-  // never commit production URLs, credentials, or signing keys.
   await dotenv.load(fileName: ".env");
   runApp(const FoodRescueApp());
 }
@@ -32,7 +30,6 @@ class FoodRescueApp extends StatelessWidget {
       scaffoldBackgroundColor: AppColors.background,
     );
 
-    // Security: Matikan debug info di production
     if (kReleaseMode) {
       ErrorWidget.builder = (FlutterErrorDetails details) {
         return const Center(

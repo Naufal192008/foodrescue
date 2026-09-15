@@ -6,8 +6,15 @@ import '../models/product_model.dart';
 import '../utils/app_colors.dart';
 
 class TicketScreen extends StatelessWidget {
-  const TicketScreen({super.key, required this.product});
+  const TicketScreen({
+    super.key,
+    required this.product,
+    required this.address,
+    required this.paymentMethod,
+  });
   final Product product;
+  final String address;
+  final String paymentMethod;
 
   @override
   Widget build(BuildContext context) {
@@ -119,22 +126,22 @@ class TicketScreen extends StatelessWidget {
                   Text(
                     'Lokasi & Kontak Toko',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                          fontWeight: FontWeight.w800,
+                        ),
                   ),
                   const SizedBox(height: 12),
-                  const Row(
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.location_on_outlined,
                         color: AppColors.primary,
                       ),
-                      SizedBox(width: 9),
+                      const SizedBox(width: 9),
                       Expanded(
                         child: Text(
-                          'Jl. Melati No. 24, Jakarta Selatan\nBuka hari ini sampai 21:00',
-                          style: TextStyle(height: 1.5),
+                          address,
+                          style: const TextStyle(height: 1.5),
                         ),
                       ),
                     ],
@@ -184,9 +191,9 @@ class TicketScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Metode'),
-                      const Text(
-                        'GoPay',
-                        style: TextStyle(color: AppColors.mutedText),
+                      Text(
+                        paymentMethod,
+                        style: const TextStyle(color: AppColors.mutedText),
                       ),
                     ],
                   ),

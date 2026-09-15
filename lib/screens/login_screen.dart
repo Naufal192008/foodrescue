@@ -25,6 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _rememberMe = true;
+  String _selectedRole = 'Rescuer (Konsumen)';
 
   @override
   void initState() {
@@ -103,110 +105,489 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _forgotPassword() async {
+    final emailController = TextEditingController(
+      text: _usernameController.text.contains('@')
+          ? _usernameController.text.trim()
+          : '',
+    );
+    final newPasswordController = TextEditingController();
+    final confirmationController = TextEditingController();
+
+    final values = await showDialog<List<String>>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Atur Ulang Kata Sandi'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: 'Alamat email',
+                  prefixIcon: Icon(Icons.mail_outline_rounded),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: newPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password baru',
+                  prefixIcon: Icon(Icons.lock_outline_rounded),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: confirmationController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Konfirmasi password baru',
+                  prefixIcon: Icon(Icons.lock_reset_outlined),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop([
+              emailController.text.trim().toLowerCase(),
+              newPasswordController.text,
+              confirmationController.text,
+            ]),
+            child: const Text('Simpan Password'),
+          ),
+        ],
+      ),
+    );
+
+    emailController.dispose();
+    newPasswordController.dispose();
+    confirmationController.dispose();
+
+    if (!mounted || values == null) return;
+    final email = values[0];
+    final newPassword = values[1];
+    final confirmation = values[2];
+    final account = DemoAccounts.findByEmail(email);
+
+    if (account == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email belum terdaftar.')),
+      );
+      return;
+    }
+    if (newPassword.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password minimal 8 karakter.')),
+      );
+      return;
+    }
+    if (newPassword != confirmation) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Konfirmasi password tidak cocok.')),
+      );
+      return;
+    }
+
+    DemoAccounts.resetPassword(email, newPassword);
+    _usernameController.text = email;
+    _passwordController.clear();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Password berhasil diperbarui.')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(30, 26, 30, 40),
+          child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
+              constraints: const BoxConstraints(maxWidth: 530),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Image.asset(
-                      'assets/logo.jpeg',
-                      width: 230,
-                      height: 170,
-                      fit: BoxFit.contain,
+                    Row(
+                      children: [
+                        Container(
+                          width: 72,
+                          height: 72,
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(22),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x12000000),
+                                blurRadius: 14,
+                                offset: Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Image.asset('assets/logo.jpeg'),
+                        ),
+                        const SizedBox(width: 20),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                style: textTheme.headlineSmall?.copyWith(
+                                  color: AppColors.text,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.5,
+                                ),
+                                children: const [
+                                  TextSpan(text: 'FOOD RESCUE '),
+                                  TextSpan(
+                                    text: '•',
+                                    style:
+                                        TextStyle(color: AppColors.secondary),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Text(
+                              'Taste Without Waste',
+                              style: TextStyle(
+                                color: AppColors.mutedText,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Selamat datang di FoodRescue',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.w800),
-                    ),
+                    const SizedBox(height: 36),
+                    Text('Masuk ke Akun',
+                        style: textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.text,
+                        )),
                     const SizedBox(height: 8),
                     const Text(
-                      'Masuk untuk menyelamatkan makanan dan mengurangi sampah.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.mutedText),
+                      'Selamat datang kembali! Selamatkan makanan lezat\nbernutrisi dan kurangi surplus pangan harian.',
+                      style: TextStyle(
+                        color: AppColors.mutedText,
+                        fontSize: 18,
+                        height: 1.8,
+                      ),
                     ),
+                    const SizedBox(height: 24),
+                    _buildAuthTabs(context),
                     const SizedBox(height: 32),
+                    _buildGoogleButton(),
+                    const SizedBox(height: 24),
+                    const _DividerLabel(label: 'ATAU MASUK DENGAN EMAIL'),
+                    const SizedBox(height: 24),
+                    const _FieldLabel(label: 'Alamat Email'),
+                    const SizedBox(height: 8),
                     TextFormField(
                       controller: _usernameController,
                       textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
-                        labelText: 'Username',
-                        prefixIcon: Icon(Icons.person_outline_rounded),
+                        hintText: 'nama@email.com',
+                        prefixIcon: Icon(Icons.mail_outline_rounded),
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) =>
                           value == null || value.trim().isEmpty
-                              ? 'Username wajib diisi'
+                              ? 'Alamat email wajib diisi'
                               : null,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Akun demo: budi.santoso@email.com / user123',
+                      style: TextStyle(
+                        color: AppColors.mutedText,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const _FieldLabel(label: 'Kata Sandi'),
+                        TextButton(
+                          onPressed: _forgotPassword,
+                          child: const Text('Lupa Kata Sandi?'),
+                        ),
+                      ],
+                    ),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _login(),
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        hintText: '••••••••••••',
                         prefixIcon: const Icon(Icons.lock_outline_rounded),
                         suffixIcon: IconButton(
                           tooltip: _obscurePassword
                               ? 'Tampilkan password'
                               : 'Sembunyikan password',
                           onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword,
-                          ),
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                          ),
+                              () => _obscurePassword = !_obscurePassword),
+                          icon: Icon(_obscurePassword
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined),
                         ),
                         border: const OutlineInputBorder(),
                       ),
                       validator: (value) => value == null || value.isEmpty
-                          ? 'Password wajib diisi'
+                          ? 'Kata sandi wajib diisi'
                           : null,
                     ),
-                    const SizedBox(height: 24),
-                    FilledButton.icon(
-                      onPressed: _isLoading ? null : _login,
-                      icon: _isLoading
-                          ? const SizedBox.square(
-                              dimension: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.login_rounded),
-                      label: Text(_isLoading ? 'Memeriksa...' : 'Masuk'),
-                    ),
                     const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const RegisterScreen(),
-                        ),
-                      ),
-                      icon: const Icon(Icons.person_add_alt_1_rounded),
-                      label: const Text('Daftar sebagai user'),
+                    CheckboxListTile(
+                      value: _rememberMe,
+                      onChanged: (value) =>
+                          setState(() => _rememberMe = value ?? false),
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      title: const Text('Ingat Saya di Perangkat Ini'),
+                      activeColor: AppColors.primary,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 14),
+                    const _FieldLabel(label: 'Pilih Peran Ekosistem'),
+                    const SizedBox(height: 10),
+                    _RoleCard(
+                      icon: Icons.eco_rounded,
+                      title: 'Rescuer (Konsumen)',
+                      subtitle: 'Beli & selamatkan surplus makanan lezat...',
+                      color: const Color(0xFF8BF5A3),
+                      selected: _selectedRole == 'Rescuer (Konsumen)',
+                      onTap: () =>
+                          setState(() => _selectedRole = 'Rescuer (Konsumen)'),
+                    ),
+                    _RoleCard(
+                      icon: Icons.storefront_rounded,
+                      title: 'Mitra Toko & Resto',
+                      subtitle: 'Jual kelebihan stok harian & tingkatkan...',
+                      color: const Color(0xFFFFD7C9),
+                      selected: _selectedRole == 'Mitra Toko & Resto',
+                      onTap: () =>
+                          setState(() => _selectedRole = 'Mitra Toko & Resto'),
+                    ),
+                    _RoleCard(
+                      icon: Icons.pedal_bike_rounded,
+                      title: 'Kurir Penyelamat',
+                      subtitle: 'Antar logistik bersinulasi dengan rute...',
+                      color: const Color(0xFFB8F3C2),
+                      selected: _selectedRole == 'Kurir Penyelamat',
+                      onTap: () =>
+                          setState(() => _selectedRole = 'Kurir Penyelamat'),
+                    ),
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      height: 58,
+                      child: FilledButton(
+                        onPressed: _isLoading ? null : _login,
+                        child: _isLoading
+                            ? const SizedBox.square(
+                                dimension: 22,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Text('MASUK KE AKUN'),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthTabs(BuildContext context) {
+    return Container(
+      height: 62,
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF1EF),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: FilledButton(
+              onPressed: _isLoading ? null : _login,
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppColors.primary,
+                elevation: 1,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(13)),
+              ),
+              child: const Text('Masuk'),
+            ),
+          ),
+          Expanded(
+            child: TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const RegisterScreen()),
+              ),
+              child: const Text('Daftar Akun Baru'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGoogleButton() {
+    return OutlinedButton(
+      onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login Google segera hadir.'))),
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size.fromHeight(68),
+        backgroundColor: Colors.white,
+        side: BorderSide.none,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('G',
+              style: TextStyle(
+                  color: Color(0xFF4285F4),
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800)),
+          SizedBox(width: 18),
+          Text('Lanjutkan dengan Google',
+              style: TextStyle(
+                  color: AppColors.text,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
+  }
+}
+
+class _FieldLabel extends StatelessWidget {
+  const _FieldLabel({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Text(label,
+      style: const TextStyle(
+          color: AppColors.text, fontSize: 16, fontWeight: FontWeight.w700));
+}
+
+class _DividerLabel extends StatelessWidget {
+  const _DividerLabel({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        const Expanded(child: Divider()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(label,
+              style: const TextStyle(
+                  color: AppColors.mutedText,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1)),
+        ),
+        const Expanded(child: Divider()),
+      ]);
+}
+
+class _RoleCard extends StatelessWidget {
+  const _RoleCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(22),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: selected ? AppColors.primary : Colors.transparent,
+            width: selected ? 3 : 1,
+          ),
+          boxShadow: const [
+            BoxShadow(
+                color: Color(0x0D000000), blurRadius: 8, offset: Offset(0, 3)),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                  color: color, borderRadius: BorderRadius.circular(16)),
+              child: Icon(icon, color: AppColors.primaryDark, size: 30),
+            ),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          color: AppColors.text,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 4),
+                  Text(subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: AppColors.mutedText, fontSize: 15)),
+                ],
+              ),
+            ),
+            Icon(
+              selected ? Icons.check_circle : Icons.circle,
+              color: selected ? AppColors.primary : const Color(0xFFE6E8E6),
+              size: 30,
+            ),
+          ],
         ),
       ),
     );
@@ -220,28 +601,59 @@ class DemoAccounts {
       'role': 'user',
       'name': 'Budi Santoso',
       'email': 'budi.santoso@email.com',
+      'phone': '081234567890',
+      'ecosystemRole': 'Rescuer (Konsumen)',
+    },
+    'budi.santoso@email.com': {
+      'password': SecurityUtils.hashPassword('user123'),
+      'role': 'user',
+      'name': 'Budi Santoso',
+      'email': 'budi.santoso@email.com',
+      'phone': '081234567890',
+      'ecosystemRole': 'Rescuer (Konsumen)',
     },
   };
 
   static bool contains(String username) => accounts.containsKey(username);
+
+  static Map<String, String>? findByEmail(String email) {
+    for (final account in accounts.values) {
+      if (account['email']?.toLowerCase() == email.toLowerCase()) {
+        return account;
+      }
+    }
+    return null;
+  }
+
+  static void resetPassword(String email, String password) {
+    for (final account in accounts.values) {
+      if (account['email']?.toLowerCase() == email.toLowerCase()) {
+        account['password'] = SecurityUtils.hashPassword(password);
+      }
+    }
+  }
 
   static void addAccount({
     required String username,
     required String password,
     required String name,
     required String email,
+    required String phone,
+    required String ecosystemRole,
   }) {
     accounts[username] = {
       'password': SecurityUtils.hashPassword(password),
       'role': 'user',
       'name': name,
       'email': email,
+      'phone': phone,
+      'ecosystemRole': ecosystemRole,
     };
     AdminDataService().addUser(AdminUser(
       id: 'U${DateTime.now().millisecondsSinceEpoch}',
       name: name,
       email: email,
-      phone: '-',
+      phone: phone,
       role: UserRole.customer,
       status: UserStatus.active,
       joinedAt: DateTime.now(),
