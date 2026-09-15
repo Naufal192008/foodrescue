@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/product_model.dart';
 import '../providers/cart_provider.dart';
@@ -10,9 +11,19 @@ import '../utils/app_colors.dart';
 import '../widgets/countdown_timer.dart';
 import 'ticket_screen.dart';
 
-class ProductDetailScreen extends StatelessWidget {
+class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key, required this.product});
   final Product product;
+
+  @override
+  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+}
+
+class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  String _paymentMethod = 'GoPay';
+  String _deliveryMethod = 'Ambil sendiri';
+
+  Product get product => widget.product;
 
   String _currency(int value) => NumberFormat.currency(
         locale: 'id_ID',
@@ -20,8 +31,22 @@ class ProductDetailScreen extends StatelessWidget {
         decimalDigits: 0,
       ).format(value);
 
-  void _claim(BuildContext context) {
+  Future<void> _claim(BuildContext context) async {
     context.read<CartProvider>().addToCart(product);
+    final uri = switch (_paymentMethod) {
+      'GoPay' => Uri.parse('gopay://home'),
+      'OVO' => Uri.parse('ovo://home'),
+      'ShopeePay' => Uri.parse('shopeepay://'),
+      _ => null,
+    };
+    if (uri != null && await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else if (context.mounted && _paymentMethod == 'QRIS') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('QRIS akan ditampilkan pada tahap pembayaran.')),
+      );
+    }
+    if (!context.mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => TicketScreen(product: product)),
     );
@@ -30,7 +55,10 @@ class ProductDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final serviceFee = 2000;
-    final total = product.discountPrice + serviceFee;
+    final deliveryFee = _deliveryMethod == 'Ambil sendiri'
+      ? 0
+      : 5000 + (product.distance * 2500).round();
+    final total = product.discountPrice + serviceFee + deliveryFee;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -278,8 +306,8 @@ class ProductDetailScreen extends StatelessWidget {
                         ),
                   ),
                   RadioGroup<String>(
-                    groupValue: 'GoPay',
-                    onChanged: (_) {},
+                    groupValue: _paymentMethod,
+                    onChanged: (value) => setState(() => _paymentMethod = value!),
                     child: Column(
                       children: [
                         ...['GoPay', 'OVO', 'ShopeePay', 'QRIS'].map(
@@ -293,6 +321,33 @@ class ProductDetailScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 18),
+                  Text(
+                    'Cara Menerima Pesanan',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                  RadioGroup<String>(
+                    groupValue: _deliveryMethod,
+                    onChanged: (value) => setState(() => _deliveryMethod = value!),
+                    child: Column(
+                      children: [
+                        ...['Ambil sendiri', 'Antar dengan Gojek', 'Antar dengan Grab'].map(
+                          (method) => RadioListTile<String>(
+                            value: method,
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(method),
+                            subtitle: method == 'Ambil sendiri'
+                                ? null
+                                : Text('Ongkir ${_currency(5000 + (product.distance * 2500).round())}'),
+                            activeColor: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _PriceRow(label: 'Biaya antar', value: _currency(deliveryFee)),
                 ],
               ),
             ),

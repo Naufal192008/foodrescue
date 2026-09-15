@@ -10,10 +10,56 @@ import '../utils/security_utils.dart';
 import 'main_navigation.dart';
 import 'register_screen.dart';
 
+class StoreHomeScreen extends StatelessWidget {
+  const StoreHomeScreen({super.key, required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Ruang Toko'),
+        leading: IconButton(
+          tooltip: 'Kembali',
+          onPressed: () => Navigator.of(context).maybePop(),
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Text('Halo, $name', style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: 8),
+          const Text('Kelola makanan surplus dan pesanan toko kamu dari sini.'),
+          const SizedBox(height: 24),
+          const Card(
+            child: ListTile(
+              leading: Icon(Icons.inventory_2_outlined),
+              title: Text('Produk toko'),
+              subtitle: Text('Tambahkan dan kelola surprise box'),
+              trailing: Icon(Icons.chevron_right),
+            ),
+          ),
+          const Card(
+            child: ListTile(
+              leading: Icon(Icons.receipt_long_outlined),
+              title: Text('Pesanan masuk'),
+              subtitle: Text('Lihat klaim dari pelanggan'),
+              trailing: Icon(Icons.chevron_right),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, this.initialUsername});
+  const LoginScreen({super.key, this.initialUsername, this.storeMode = false});
 
   final String? initialUsername;
+  final bool storeMode;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -54,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!mounted) return;
 
-    if (isValidLocal) {
+    if (isValidLocal && !widget.storeMode) {
       // Login berhasil via akun demo lokal
       setState(() => _isLoading = false);
       Navigator.of(context).pushReplacement(
@@ -79,19 +125,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (result['success'] == true) {
       final data = result['data'] ?? {};
-      final role = data['role'] ?? 'user';
-      final name = data['name'] ?? username;
-      final email = data['email'] ?? username;
+      final user = Map<String, dynamic>.from(data['user'] ?? data);
+      final role = user['role'] ?? 'customer';
+      final name = user['name'] ?? username;
+      final email = user['email'] ?? username;
+
+      if (widget.storeMode && role != 'storeOwner') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Akun ini bukan akun toko.')),
+        );
+        return;
+      }
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder: (_) => role == 'admin'
               ? const AdminLayout()
-              : MainNavigation(
-                  username: username,
-                  name: name,
-                  email: email,
-                ),
+                : role == 'storeOwner'
+                  ? StoreHomeScreen(name: name)
+                  : MainNavigation(
+                      username: username, name: name, email: email),
         ),
       );
     } else {

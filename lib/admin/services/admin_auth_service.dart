@@ -8,7 +8,8 @@ class AdminAuthService {
       throw Exception(response['message'] ?? 'Login admin gagal');
     }
 
-    final data = Map<String, dynamic>.from(response['data'] ?? {});
+    final envelope = Map<String, dynamic>.from(response['data'] ?? {});
+    final data = Map<String, dynamic>.from(envelope['user'] ?? envelope);
     // SECURITY: never trust a client-side role; require the backend claim.
     final role = data['role'];
     if (role != 'superAdmin' && role != 'admin') {

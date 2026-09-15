@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
+import '../services/api_service.dart';
 import '../utils/security_utils.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({super.key, this.storeMode = false});
+
+  final bool storeMode;
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -16,6 +19,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _addressController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmationController = TextEditingController();
   bool _obscurePassword = true;
@@ -26,12 +30,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _nameController.dispose();
     _usernameController.dispose();
     _emailController.dispose();
+    _addressController.dispose();
     _passwordController.dispose();
     _confirmationController.dispose();
     super.dispose();
   }
 
-  void _register() {
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (widget.storeMode) {
+      final result = await ApiService.register(
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        address: _addressController.text.trim(),
+        store: true,
+      );
+      if (!mounted) return;
+      if (result['success'] != true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? 'Registrasi toko gagal')),
+        );
+        return;
+      }
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => const LoginScreen(storeMode: true),
+        ),
+      );
+      return;
+    }
+
     // SECURITY: local registration is a debug-only fixture; production must use
     // a backend registration endpoint with verification and rate limiting.
     if (!kDebugMode) {
@@ -104,6 +134,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 validator: (value) => _required(value, 'Nama lengkap'),
               ),
               const SizedBox(height: 14),
+              if (widget.storeMode) ...[
+                TextFormField(
+                  controller: _addressController,
+                  decoration: const InputDecoration(
+                    labelText: 'Lokasi toko',
+                    prefixIcon: Icon(Icons.location_on_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => _required(value, 'Lokasi toko'),
+                ),
+                const SizedBox(height: 14),
+              ],
               TextFormField(
                 controller: _usernameController,
                 decoration: const InputDecoration(

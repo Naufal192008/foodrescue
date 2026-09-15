@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../admin/admin_login.dart';
 import '../utils/app_colors.dart';
 import 'login_screen.dart';
+import 'register_screen.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
@@ -56,7 +56,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   OutlinedButton.icon(
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => const AdminLoginScreen(),
+                        builder: (_) => const RegisterScreen(storeMode: true),
                       ),
                     ),
                     icon: const Icon(Icons.storefront_rounded),
