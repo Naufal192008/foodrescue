@@ -37,14 +37,7 @@ class Env {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Validasi env sebelum app jalan
-  if (!Env.isValid) {
-    debugPrint('WARNING: SUPABASE_URL / SUPABASE_ANON_KEY belum di-set.');
-  } else {
-    debugPrint('Env loaded: ${Env.supabaseUrl}');
-  }
-
+  await dotenv.load(fileName: ".env");
   runApp(const FoodRescueApp());
 }
 
